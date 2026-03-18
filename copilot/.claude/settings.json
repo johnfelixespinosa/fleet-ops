@@ -35,6 +35,12 @@
         "type": "command",
         "command": "echo 'ROUTING: Classify this request as exactly one of: [find-maintenance-opportunities, vehicle-health-check, draft-maintenance-plan, mechanic-service-brief, general-question]. Activate the matching skill and generate the corresponding HTML report. If general-question, answer directly using MCP tools with evidence.'"
       }]
+    }],
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bin/hooks/session-end-audit.sh"
+      }]
     }]
   }
 }
