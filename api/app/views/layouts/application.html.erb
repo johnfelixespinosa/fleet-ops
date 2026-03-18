@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "FleetOps" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,24 +11,91 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen">
-    <nav class="bg-slate-800 text-white shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-14">
-          <div class="flex items-center space-x-8">
-            <%= link_to "FleetOps", root_path, class: "text-lg font-bold tracking-tight" %>
-            <div class="flex space-x-4 text-sm">
-              <%= link_to "Dashboard", root_path, class: "text-slate-300 hover:text-white" %>
-              <%= link_to "Vehicles", vehicles_path, class: "text-slate-300 hover:text-white" %>
-              <%= link_to "Service Centers", service_centers_path, class: "text-slate-300 hover:text-white" %>
-            </div>
+  <body class="bg-slate-50 text-slate-600 h-screen w-screen overflow-hidden flex antialiased">
+    <!-- Subtle background blobs -->
+    <div class="bg-blob w-[600px] h-[600px] bg-slate-200/50 top-[-200px] left-[-100px]"></div>
+    <div class="bg-blob w-[500px] h-[500px] bg-teal-100/40 bottom-[-100px] right-[-100px]"></div>
+
+    <!-- Sidebar -->
+    <aside class="w-16 lg:w-64 bg-white border-r border-slate-200 h-full flex flex-col z-20 relative flex-shrink-0">
+      <!-- Logo -->
+      <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-100">
+        <%= link_to root_path, class: "flex items-center gap-3" do %>
+          <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-900 shadow-lg flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
           </div>
+          <span class="hidden lg:block text-lg font-bold text-slate-900 tracking-wide">Fleet<span class="text-teal-600">Ops</span></span>
+        <% end %>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 py-6 px-2 lg:px-3 flex flex-col gap-1">
+        <%# Dashboard %>
+        <% dash_active = current_page?(root_path) %>
+        <%= link_to root_path, class: "flex items-center gap-4 px-3 py-2.5 rounded-xl group transition-colors #{dash_active ? 'bg-slate-100 border border-slate-200 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}" do %>
+          <svg class="w-5 h-5 flex-shrink-0 <%= dash_active ? 'text-teal-600' : 'group-hover:text-teal-600 transition-colors' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+          <span class="hidden lg:block <%= dash_active ? 'font-semibold' : 'font-medium' %>">Dashboard</span>
+        <% end %>
+
+        <%# Vehicles %>
+        <% veh_active = current_page?(vehicles_path) %>
+        <%= link_to vehicles_path, class: "flex items-center gap-4 px-3 py-2.5 rounded-xl group transition-colors #{veh_active ? 'bg-slate-100 border border-slate-200 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}" do %>
+          <svg class="w-5 h-5 flex-shrink-0 <%= veh_active ? 'text-teal-600' : 'group-hover:text-teal-600 transition-colors' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          <span class="hidden lg:block <%= veh_active ? 'font-semibold' : 'font-medium' %>">Vehicles</span>
+        <% end %>
+
+        <%# Service Centers %>
+        <% sc_active = current_page?(service_centers_path) %>
+        <%= link_to service_centers_path, class: "flex items-center gap-4 px-3 py-2.5 rounded-xl group transition-colors #{sc_active ? 'bg-slate-100 border border-slate-200 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}" do %>
+          <svg class="w-5 h-5 flex-shrink-0 <%= sc_active ? 'text-teal-600' : 'group-hover:text-teal-600 transition-colors' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span class="hidden lg:block <%= sc_active ? 'font-semibold' : 'font-medium' %>">Service Centers</span>
+        <% end %>
+      </nav>
+
+      <!-- User -->
+      <div class="p-4 border-t border-slate-100 flex items-center justify-center lg:justify-start gap-3">
+        <div class="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">FM</div>
+        <div class="hidden lg:block">
+          <p class="text-sm font-semibold text-slate-900">Fleet Manager</p>
+          <p class="text-xs text-slate-400">Operations</p>
         </div>
       </div>
-    </nav>
+    </aside>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <%= yield %>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full z-10 overflow-hidden">
+      <!-- Top Header Bar -->
+      <header class="h-16 px-6 lg:px-8 flex items-center justify-between bg-white border-b border-slate-200 z-20 flex-shrink-0">
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight"><%= yield(:page_heading).presence || "FleetOps" %></h1>
+          <% if content_for?(:page_subheading) %>
+            <p class="text-xs text-slate-500 mt-0.5"><%= yield(:page_subheading) %></p>
+          <% end %>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="w-9 h-9 rounded-lg flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 transition-colors relative">
+            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Page Content -->
+      <div class="flex-1 overflow-y-auto p-6 lg:p-8 pb-24">
+        <div class="max-w-7xl mx-auto">
+          <%= yield %>
+        </div>
+      </div>
     </main>
   </body>
 </html>

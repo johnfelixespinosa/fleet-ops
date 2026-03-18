@@ -1,7 +1,14 @@
 <% content_for(:title) { "FleetOps — #{@vehicle.unit_number}" } %>
+<% content_for(:page_heading) { @vehicle.unit_number } %>
+<% content_for(:page_subheading) { "#{@vehicle.make} #{@vehicle.model} (#{@vehicle.year})" } %>
 
 <div class="mb-4">
-  <%= link_to "&larr; All Vehicles".html_safe, vehicles_path, class: "text-sm text-blue-600 hover:underline" %>
+  <%= link_to vehicles_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 transition-colors" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    All Vehicles
+  <% end %>
 </div>
 
 <%= render "vehicles/header", vehicle: @vehicle %>
