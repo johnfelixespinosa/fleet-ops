@@ -1,0 +1,107 @@
+<!-- Recommendation Report Template — filled by draft-maintenance-plan skill -->
+<!-- Copy base-layout.html, inject shared-styles.css, replace {{REPORT_BODY}} with this content -->
+
+<div class="card">
+  <div class="card-header">
+    <h3>Maintenance Recommendation</h3>
+    <span class="badge badge-proposed">Proposed — Pending Approval</span>
+  </div>
+</div>
+
+<!-- Vehicle -->
+<h4 class="section-title">Vehicle</h4>
+<div class="card">
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{UNIT_NUMBER}}</div>
+      <div class="metric-label">Unit</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{MAKE_MODEL}}</div>
+      <div class="metric-label">Vehicle</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{CURRENT_MILEAGE}}</div>
+      <div class="metric-label">Current Mileage</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{BATTERY_HEALTH}}%</div>
+      <div class="metric-label">Battery Health</div>
+    </div>
+  </div>
+</div>
+
+<!-- Maintenance Details -->
+<h4 class="section-title">Service Details</h4>
+<div class="card">
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{MAINTENANCE_TYPE}}</div>
+      <div class="metric-label">Service Type</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{MILES_REMAINING}} mi</div>
+      <div class="metric-label">Miles to Threshold</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{THRESHOLD_MILEAGE}}</div>
+      <div class="metric-label">Threshold Mileage</div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Center -->
+<h4 class="section-title">Service Center</h4>
+<div class="card">
+  <p><strong>{{CENTER_NAME}}</strong> — {{CENTER_CITY}}</p>
+  <p style="font-size:0.875rem; color:#718096; margin-top:0.25rem;">
+    Contact: {{CENTER_EMAIL}} · EV Certified: {{CENTER_EV_CERTIFIED}}
+  </p>
+  <p style="font-size:0.875rem; margin-top:0.5rem;">
+    Capabilities: {{CENTER_CAPABILITIES}}
+  </p>
+</div>
+
+<!-- Trip Context -->
+<h4 class="section-title">Trip Context</h4>
+<div class="card">
+  <p><strong>{{TRIP_NUMBER}}</strong> — {{TRIP_ROUTE}}</p>
+  <p style="font-size:0.875rem; color:#718096;">
+    Departure: {{TRIP_DEPARTURE}} · Return: {{TRIP_RETURN}}
+  </p>
+</div>
+
+<!-- Affected Trips -->
+<h4 class="section-title">Affected Trips</h4>
+<table class="data-table">
+  <thead>
+    <tr><th>Trip</th><th>Destination</th><th>Departure</th></tr>
+  </thead>
+  <tbody>
+    <!-- Repeat for each affected trip -->
+    <tr>
+      <td>{{AFFECTED_TRIP_NUMBER}}</td>
+      <td>{{AFFECTED_DESTINATION}}</td>
+      <td>{{AFFECTED_DEPARTURE}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Evidence -->
+<h4 class="section-title">Evidence</h4>
+<ul class="evidence-list">
+  {{EVIDENCE_ITEMS}}
+</ul>
+
+<!-- Assumptions -->
+<h4 class="section-title">Assumptions & Limitations</h4>
+<ul class="assumptions-list">
+  {{ASSUMPTION_ITEMS}}
+</ul>
+
+<!-- Approval -->
+<h4 class="section-title">Approval</h4>
+<div class="card">
+  <p>Submitted as <strong>PR #{{PR_NUMBER}}</strong> for fleet manager review.</p>
+  <p style="font-size:0.875rem; color:#718096; margin-top:0.25rem;">{{PR_URL}}</p>
+</div>

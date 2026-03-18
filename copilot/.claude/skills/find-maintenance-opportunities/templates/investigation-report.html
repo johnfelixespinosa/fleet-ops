@@ -1,0 +1,92 @@
+<!-- Investigation Report Template — filled by find-maintenance-opportunities skill -->
+<!-- Copy base-layout.html, inject shared-styles.css, replace {{REPORT_BODY}} with this content -->
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-value">{{VEHICLES_SCANNED}}</div>
+    <div class="metric-label">Vehicles Scanned</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">{{VEHICLES_FLAGGED}}</div>
+    <div class="metric-label">Flagged</div>
+  </div>
+  <div class="metric">
+    <div class="metric-value">{{TIME_WINDOW}}</div>
+    <div class="metric-label">Day Window</div>
+  </div>
+</div>
+
+<!-- Repeat this card for each flagged vehicle, ordered by urgency -->
+<div class="card">
+  <div class="card-header">
+    <h3>{{UNIT_NUMBER}} — {{MAKE_MODEL}}</h3>
+    <span class="badge badge-{{URGENCY_CLASS}}">{{URGENCY_LABEL}}</span>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{MILES_REMAINING}}</div>
+      <div class="metric-label">Miles to Threshold</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{MAINTENANCE_TYPE}}</div>
+      <div class="metric-label">Service Type</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{PROJECTED_DAYS}}</div>
+      <div class="metric-label">Projected Days</div>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-bar-fill {{PROGRESS_COLOR}}" style="width: {{PROGRESS_PCT}}%"></div>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#718096; margin-top:0.25rem;">
+    <span>{{CURRENT_MILEAGE}} mi</span>
+    <span>{{THRESHOLD_MILEAGE}} mi</span>
+  </div>
+
+  <!-- Upcoming trips for this vehicle -->
+  <h4 class="section-title">Upcoming Trips</h4>
+  <table class="data-table">
+    <thead>
+      <tr><th>Trip</th><th>Route</th><th>Date</th><th class="text-right">Distance</th></tr>
+    </thead>
+    <tbody>
+      <!-- Repeat for each trip -->
+      <tr>
+        <td>{{TRIP_NUMBER}}</td>
+        <td>{{TRIP_ORIGIN}} → {{TRIP_DESTINATION}}</td>
+        <td>{{TRIP_DATE}}</td>
+        <td class="text-right">{{TRIP_DISTANCE}} mi</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Nearest service centers -->
+  <h4 class="section-title">Nearest Service Centers (Return Leg)</h4>
+  <table class="data-table">
+    <thead>
+      <tr><th>Name</th><th>City</th><th class="text-right">Distance from Route</th><th>EV Certified</th></tr>
+    </thead>
+    <tbody>
+      <!-- Repeat for each center -->
+      <tr>
+        <td>{{CENTER_NAME}}</td>
+        <td>{{CENTER_CITY}}</td>
+        <td class="text-right">{{CENTER_DISTANCE}} mi</td>
+        <td>{{CENTER_EV_CERTIFIED}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- End vehicle card -->
+
+<h4 class="section-title">Assumptions & Limitations</h4>
+<ul class="assumptions-list">
+  <li>Service center availability not confirmed — recommend calling ahead</li>
+  <li>Daily mileage projections based on last 30 days of trip data</li>
+  <li>No technician load, bay capacity, or parts availability data</li>
+  <li>Rankings based on available data only</li>
+  <!-- Add any additional assumptions -->
+</ul>

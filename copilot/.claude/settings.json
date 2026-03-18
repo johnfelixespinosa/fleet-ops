@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "fleetops": {
+      "command": "bin/mcp_server",
+      "cwd": "/Users/johnespinosa/Desktop/Projects/fleet-ops/api"
+    }
+  },
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{
+        "type": "command",
+        "command": "mkdir -p /tmp/fleetops-audit && cat .claude/skills/fleet-safety-protocols/SKILL.md && echo '---' && echo 'Session started:' && date -u && echo 'safety_loaded' > /tmp/fleetops-audit/.safety-gate-marker && echo '{\"type\":\"session_start\",\"ts\":\"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\",\"user\":\"'$(whoami)'\",\"sid\":\"'\"${CLAUDE_SESSION_ID:-unknown}\"'\"}' >> /tmp/fleetops-audit/events.jsonl"
+      }]
+    }],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__fleetops__vehicles_due_for_maintenance|mcp__fleetops__upcoming_trips_for_vehicle|mcp__fleetops__service_centers_near_route|mcp__fleetops__vehicle_health_summary|mcp__fleetops__draft_maintenance_recommendation",
+        "hooks": [{
+          "type": "command",
+          "command": "if [ ! -f /tmp/fleetops-audit/.safety-gate-marker ]; then echo 'BLOCKED: Fleet safety protocols must be loaded first.' && exit 1; fi"
+        }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__fleetops__vehicles_due_for_maintenance|mcp__fleetops__upcoming_trips_for_vehicle|mcp__fleetops__service_centers_near_route|mcp__fleetops__vehicle_health_summary|mcp__fleetops__draft_maintenance_recommendation",
+        "hooks": [{
+          "type": "command",
+          "command": "mkdir -p /tmp/fleetops-audit && echo '{\"type\":\"tool_call\",\"tool\":\"'\"$CLAUDE_TOOL_NAME\"'\",\"ts\":\"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\",\"user\":\"'$(whoami)'\",\"sid\":\"'\"${CLAUDE_SESSION_ID:-unknown}\"'\"}' >> /tmp/fleetops-audit/events.jsonl"
+        }]
+      }
+    ],
+    "UserPromptSubmit": [{
+      "hooks": [{
+        "type": "command",
+        "command": "echo 'ROUTING: Classify this request as exactly one of: [find-maintenance-opportunities, vehicle-health-check, draft-maintenance-plan, mechanic-service-brief, general-question]. Activate the matching skill and generate the corresponding HTML report. If general-question, answer directly using MCP tools with evidence.'"
+      }]
+    }]
+  }
+}

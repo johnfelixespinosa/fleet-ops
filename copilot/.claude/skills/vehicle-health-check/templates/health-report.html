@@ -1,0 +1,110 @@
+<!-- Vehicle Health Report Template — filled by vehicle-health-check skill -->
+<!-- Copy base-layout.html, inject shared-styles.css, replace {{REPORT_BODY}} with this content -->
+
+<div class="card">
+  <div class="card-header">
+    <h3>{{UNIT_NUMBER}} — {{MAKE_MODEL}}</h3>
+    <span class="badge badge-{{CLASSIFICATION}}">{{CLASSIFICATION_LABEL}}</span>
+  </div>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{CURRENT_MILEAGE}}</div>
+      <div class="metric-label">Current Mileage</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{STATUS}}</div>
+      <div class="metric-label">Status</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{BATTERY_CAPACITY}} kWh</div>
+      <div class="metric-label">Battery Capacity</div>
+    </div>
+  </div>
+</div>
+
+<!-- Battery Health -->
+<h4 class="section-title">Battery Health</h4>
+<div class="card">
+  <div class="gauge">
+    <div class="gauge-value" style="color: {{BATTERY_COLOR}}">{{BATTERY_HEALTH}}%</div>
+    <div>
+      <div class="gauge-label">State of Health</div>
+      <div class="gauge-label">Expected: {{EXPECTED_HEALTH}}% at {{VEHICLE_AGE}} years</div>
+    </div>
+  </div>
+  <div class="progress-bar" style="margin-top: 0.75rem;">
+    <div class="progress-bar-fill {{BATTERY_BAR_COLOR}}" style="width: {{BATTERY_HEALTH}}%"></div>
+  </div>
+</div>
+
+<!-- Efficiency Trend -->
+<h4 class="section-title">Efficiency Trend</h4>
+<div class="card">
+  <p style="font-size:0.875rem; margin-bottom:0.75rem;">
+    Average: <strong>{{AVG_KWH_PER_MILE}} kWh/mile</strong>
+    (benchmark for {{MAKE}}: {{BENCHMARK_RANGE}} kWh/mile)
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Trip</th><th>Date</th><th class="text-right">Distance</th><th class="text-right">Cargo</th><th class="text-right">kWh/mile</th></tr>
+    </thead>
+    <tbody>
+      <!-- Repeat for each trip in efficiency_trend -->
+      <tr>
+        <td>{{TRIP_NUMBER}}</td>
+        <td>{{TRIP_DATE}}</td>
+        <td class="text-right">{{DISTANCE}} mi</td>
+        <td class="text-right">{{CARGO}} lbs</td>
+        <td class="text-right">{{KWH_PER_MILE}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Charging Patterns -->
+<h4 class="section-title">Charging Patterns</h4>
+<div class="card">
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{DEPOT_COUNT}}</div>
+      <div class="metric-label">Depot Charges (last 10)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{ENROUTE_COUNT}}</div>
+      <div class="metric-label">En-Route Charges (last 10)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{AVG_DEPOT_KWH}} kWh</div>
+      <div class="metric-label">Avg Depot Charge</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">{{AVG_ENROUTE_KWH}} kWh</div>
+      <div class="metric-label">Avg En-Route Charge</div>
+    </div>
+  </div>
+</div>
+
+<!-- Maintenance History -->
+<h4 class="section-title">Recent Maintenance</h4>
+<table class="data-table">
+  <thead>
+    <tr><th>Type</th><th>Date</th><th class="text-right">Mileage</th><th class="text-right">Cost</th></tr>
+  </thead>
+  <tbody>
+    <!-- Repeat for each maintenance record -->
+    <tr>
+      <td>{{MAINT_TYPE}}</td>
+      <td>{{MAINT_DATE}}</td>
+      <td class="text-right">{{MAINT_MILEAGE}} mi</td>
+      <td class="text-right">${{MAINT_COST}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Classification Reasoning -->
+<h4 class="section-title">Assessment</h4>
+<div class="card">
+  <p style="font-size:0.875rem;">{{CLASSIFICATION_REASONING}}</p>
+  <h5 style="margin-top:0.75rem; font-size:0.875rem; font-weight:600;">Recommended Action</h5>
+  <p style="font-size:0.875rem;">{{RECOMMENDED_ACTION}}</p>
+</div>
