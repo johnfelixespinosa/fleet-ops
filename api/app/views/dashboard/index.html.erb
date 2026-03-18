@@ -1,0 +1,115 @@
+<% content_for(:title) { "FleetOps — Dashboard" } %>
+
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-gray-900">Fleet Dashboard</h1>
+  <p class="text-sm text-gray-500 mt-1">Real-time fleet operations overview</p>
+</div>
+
+<!-- Summary Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white rounded-lg shadow p-5">
+    <p class="text-sm text-gray-500">Total Vehicles</p>
+    <p class="text-3xl font-bold text-gray-900"><%= @vehicle_count %></p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-5">
+    <p class="text-sm text-gray-500">Active</p>
+    <p class="text-3xl font-bold text-green-600"><%= @active_count %></p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-5">
+    <p class="text-sm text-gray-500">Needs Attention</p>
+    <p class="text-3xl font-bold text-amber-600"><%= @needing_attention.count %></p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-5">
+    <p class="text-sm text-gray-500">Upcoming Trips (7d)</p>
+    <p class="text-3xl font-bold text-blue-600"><%= @upcoming_trips.count %></p>
+  </div>
+</div>
+
+<!-- Needs Attention -->
+<% if @needing_attention.any? %>
+<div class="bg-white rounded-lg shadow mb-8">
+  <div class="px-5 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">Needs Attention</h2>
+    <p class="text-sm text-gray-500">Vehicles within 5,000 miles of maintenance threshold</p>
+  </div>
+  <div class="divide-y divide-gray-100">
+    <% @needing_attention.each do |vehicle| %>
+      <div class="px-5 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <%= vehicle_icon(vehicle.make) %>
+          <div>
+            <%= link_to vehicle.unit_number, vehicle_path(vehicle), class: "text-blue-600 hover:underline font-medium" %>
+            <span class="text-sm text-gray-500 ml-2"><%= vehicle.make %> <%= vehicle.model %></span>
+            <span class="ml-2"><%= vehicle_status_badge(vehicle.status) %></span>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium text-red-600"><%= number_with_delimiter(vehicle.miles_to_maintenance) %> mi to <%= vehicle.next_maintenance_type.titleize %></p>
+          <p class="text-xs text-gray-400"><%= number_with_delimiter(vehicle.current_mileage) %> / <%= number_with_delimiter(vehicle.next_maintenance_due_mileage) %> mi</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<!-- Low Battery Health -->
+<% if @low_battery.any? %>
+<div class="bg-white rounded-lg shadow mb-8">
+  <div class="px-5 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">Low Battery Health</h2>
+    <p class="text-sm text-gray-500">Active vehicles below 95% battery health</p>
+  </div>
+  <div class="divide-y divide-gray-100">
+    <% @low_battery.each do |vehicle| %>
+      <div class="px-5 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <%= vehicle_icon(vehicle.make) %>
+          <div>
+            <%= link_to vehicle.unit_number, vehicle_path(vehicle), class: "text-blue-600 hover:underline font-medium" %>
+            <span class="text-sm text-gray-500 ml-2"><%= vehicle.make %> <%= vehicle.model %> (<%= vehicle.year %>)</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium text-amber-600"><%= vehicle.battery_health_percent %>%</p>
+          <p class="text-xs text-gray-400"><%= number_with_delimiter(vehicle.current_mileage) %> mi</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<!-- Upcoming Trips -->
+<% if @upcoming_trips.any? %>
+<div class="bg-white rounded-lg shadow">
+  <div class="px-5 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">Upcoming Trips</h2>
+    <p class="text-sm text-gray-500">Next 7 days</p>
+  </div>
+  <table class="min-w-full">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trip</th>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle</th>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase">Distance</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @upcoming_trips.each do |trip| %>
+        <tr class="even:bg-gray-50">
+          <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= trip.trip_number %></td>
+          <td class="px-5 py-3 text-sm">
+            <%= link_to trip.vehicle.unit_number, vehicle_path(trip.vehicle), class: "text-blue-600 hover:underline" %>
+          </td>
+          <td class="px-5 py-3 text-sm text-gray-700"><%= trip.origin %> &rarr; <%= trip.destination %></td>
+          <td class="px-5 py-3 text-sm text-gray-700"><%= trip.departure_at.strftime("%a %b %-d, %H:%M") %></td>
+          <td class="px-5 py-3 text-sm text-right text-gray-700"><%= number_with_delimiter(trip.distance_miles) %> mi</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% end %>

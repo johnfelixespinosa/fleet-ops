@@ -1,0 +1,45 @@
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+  <div class="flex items-start justify-between">
+    <div class="flex items-center gap-4">
+      <%= vehicle_icon(vehicle.make, size: 56) %>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900"><%= vehicle.unit_number %></h1>
+        <p class="text-gray-600 mt-1"><%= vehicle.make %> <%= vehicle.model %> (<%= vehicle.year %>)</p>
+      </div>
+    </div>
+    <div><%= vehicle_status_badge(vehicle.status) %></div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Mileage</p>
+      <p class="text-lg font-semibold text-gray-900"><%= number_with_delimiter(vehicle.current_mileage) %> mi</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Battery Health</p>
+      <p class="text-lg font-semibold <%= vehicle.battery_health_percent < 95 ? 'text-amber-600' : 'text-green-600' %>">
+        <%= vehicle.battery_health_percent %>%
+      </p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Next Service</p>
+      <p class="text-sm font-medium text-gray-900"><%= vehicle.next_maintenance_type.titleize %></p>
+      <p class="text-xs <%= vehicle.miles_to_maintenance < 5000 ? 'text-red-600 font-medium' : 'text-gray-500' %>">
+        <%= number_with_delimiter(vehicle.miles_to_maintenance) %> mi remaining
+      </p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Range / Capacity</p>
+      <p class="text-sm text-gray-900"><%= vehicle.range_miles %> mi / <%= vehicle.battery_capacity_kwh %> kWh</p>
+    </div>
+  </div>
+
+  <% if vehicle.annual_inspection_due.present? %>
+    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-6 text-sm text-gray-600">
+      <span>Annual Inspection Due: <strong class="<%= vehicle.annual_inspection_due < 14.days.from_now ? 'text-red-600' : 'text-gray-900' %>"><%= vehicle.annual_inspection_due.strftime("%b %-d, %Y") %></strong></span>
+      <% if vehicle.last_maintenance_date %>
+        <span>Last Service: <strong><%= vehicle.last_maintenance_date.strftime("%b %-d, %Y") %></strong></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

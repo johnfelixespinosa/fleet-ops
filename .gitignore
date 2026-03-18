@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+
+# Rails (api/)
+api/.bundle
+api/.env*
+api/log/*
+!api/log/.keep
+api/tmp/*
+!api/tmp/.keep
+api/tmp/pids/*
+!api/tmp/pids/
+!api/tmp/pids/.keep
+api/storage/*
+!api/storage/.keep
+api/public/assets
+api/config/master.key
+api/app/assets/builds/*
+!api/app/assets/builds/.keep
+api/node_modules/
+
+# Copilot audit
+/tmp/fleetops-audit/
+
+# Screenshots from testing
+*.png
+
+# Session files
+.session/

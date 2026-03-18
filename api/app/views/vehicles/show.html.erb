@@ -1,0 +1,11 @@
+<% content_for(:title) { "FleetOps — #{@vehicle.unit_number}" } %>
+
+<div class="mb-4">
+  <%= link_to "&larr; All Vehicles".html_safe, vehicles_path, class: "text-sm text-blue-600 hover:underline" %>
+</div>
+
+<%= render "vehicles/header", vehicle: @vehicle %>
+<%= render "trips/table", trips: @upcoming_trips, title: "Upcoming Trips" %>
+<%= render "trips/table", trips: @recent_trips, title: "Recent Completed Trips" %>
+<%= render "maintenance_records/table", records: @maintenance_history, title: "Maintenance History" %>
+<%= render "charging_events/table", events: @recent_charging, title: "Recent Charging" %>

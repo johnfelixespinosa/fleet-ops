@@ -1,0 +1,37 @@
+<% if events.any? %>
+<div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+  <div class="px-5 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">Recent Charging</h2>
+  </div>
+  <table class="min-w-full">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Station</th>
+        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase">Energy</th>
+        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase">Rate</th>
+        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase">Duration</th>
+        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cost</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% events.each do |event| %>
+        <tr class="even:bg-gray-50">
+          <td class="px-5 py-3 text-sm text-gray-700"><%= event.charged_at.strftime("%b %-d, %H:%M") %></td>
+          <td class="px-5 py-3 text-sm">
+            <span class="inline-block px-2 py-1 rounded text-xs font-medium <%= event.location_type == 'depot' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+              <%= event.location_type.titleize %>
+            </span>
+          </td>
+          <td class="px-5 py-3 text-sm text-gray-700"><%= event.station_name %></td>
+          <td class="px-5 py-3 text-sm text-right text-gray-700"><%= event.energy_added_kwh %> kWh</td>
+          <td class="px-5 py-3 text-sm text-right text-gray-700"><%= event.charge_rate_kw %> kW</td>
+          <td class="px-5 py-3 text-sm text-right text-gray-700"><%= event.duration_minutes %> min</td>
+          <td class="px-5 py-3 text-sm text-right text-gray-700"><%= number_to_currency(event.cost) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% end %>
