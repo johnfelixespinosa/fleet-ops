@@ -1,4 +1,4 @@
-return if Rails.env.production?
+return if Rails.env.production? && !ENV["ALLOW_SEEDS"]
 puts "Seeding fleet data..."
 
 # ---------------------------------------------------------------------------
