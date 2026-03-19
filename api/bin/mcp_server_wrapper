@@ -1,0 +1,5 @@
+#!/bin/bash
+source "$HOME/.rvm/scripts/rvm"
+rvm use 3.4.2 > /dev/null 2>&1
+cd "$(dirname "$0")/.."
+exec ruby bin/mcp_server
