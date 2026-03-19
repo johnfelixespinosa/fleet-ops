@@ -18,7 +18,4 @@ trap restore EXIT
 
 cd "$(dirname "$0")"
 
-# MCP config as JSON string — guarantees tools register on startup
-MCP_CONFIG='{"mcpServers":{"fleetops":{"command":"/Users/johnespinosa/Desktop/Projects/fleet-ops/api/bin/mcp_server_wrapper"}}}'
-
-claude --mcp-config "$MCP_CONFIG" "$@"
+claude --mcp-config mcp.json --strict-mcp-config "$@"
