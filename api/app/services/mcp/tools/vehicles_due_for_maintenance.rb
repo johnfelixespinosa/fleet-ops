@@ -53,6 +53,17 @@ module Mcp
 
         results.sort_by { |r| r[:miles_remaining] }
       end
+
+      def self.summary(results, params)
+        days = params["within_days"] || 7
+        scanned = Vehicle.active.count
+        if results.empty?
+          "Scanned #{scanned} active vehicles — none are approaching maintenance thresholds within #{days} days."
+        else
+          names = results.map { |r| "#{r[:unit_number]} (#{r[:miles_remaining]} mi remaining)" }.join(", ")
+          "Scanned #{scanned} active vehicles — #{results.size} flagged for maintenance within #{days} days: #{names}"
+        end
+      end
     end
   end
 end

@@ -56,6 +56,19 @@ module Mcp
         results.sort_by { |r| r[:distance_from_route_miles] }
       end
 
+      def self.summary(results, params)
+        trip = Trip.find_by(id: params["trip_id"])
+        leg = params["leg"] || "return"
+        radius = params["radius_miles"] || 25
+        route_desc = trip ? "#{trip.origin} → #{trip.destination}" : "the route"
+        if results.empty?
+          "No EV-certified partner service centers found within #{radius} miles of the #{leg} leg of #{route_desc}."
+        else
+          names = results.map { |c| "#{c[:name]} in #{c[:city]} (#{c[:distance_from_route_miles]} mi from route)" }.join("; ")
+          "Found #{results.size} service center#{"s" if results.size > 1} near the #{leg} leg of #{route_desc}: #{names}"
+        end
+      end
+
       def self.haversine_miles(lat1, lng1, lat2, lng2)
         rad = Math::PI / 180
         dlat = (lat2 - lat1) * rad

@@ -64,6 +64,15 @@ module Mcp
           annual_inspection_due: v.annual_inspection_due&.iso8601
         }
       end
+
+      def self.summary(result, _params)
+        unit = result[:unit_number]
+        health = result[:battery_health_percent]
+        avg = result[:avg_kwh_per_mile]
+        miles = result[:current_mileage]
+        next_svc = result[:next_maintenance]
+        "Health summary for #{unit}: #{miles} mi, battery #{health}%, avg efficiency #{avg} kWh/mi, next #{next_svc[:type]} in #{next_svc[:miles_remaining]} mi."
+      end
     end
   end
 end

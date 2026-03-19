@@ -69,8 +69,10 @@ module Mcp
       return error_response(id, -32602, "Unknown tool: #{tool_name}") unless tool
 
       result = tool.execute(arguments)
+      summary = tool.respond_to?(:summary) ? tool.summary(result, arguments) : nil
+      text = summary ? "#{summary}\n\n#{JSON.pretty_generate(result)}" : JSON.pretty_generate(result)
       success_response(id, {
-        content: [{ type: "text", text: JSON.pretty_generate(result) }]
+        content: [{ type: "text", text: text }]
       })
     rescue ActiveRecord::RecordNotFound => e
       success_response(id, {

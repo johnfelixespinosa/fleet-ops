@@ -68,6 +68,15 @@ module Mcp
           ]
         }
       end
+
+      def self.summary(result, _params)
+        v = result[:vehicle]
+        sc = result[:service_center]
+        m = result[:maintenance]
+        trip = result[:trip_context]
+        affected = result[:affected_trips]
+        "Drafted recommendation: #{v[:unit_number]} #{m[:type]} at #{sc[:name]} (#{sc[:city]}) during trip #{trip[:trip_number]}. #{affected.size} downstream trip#{"s" if affected.size != 1} affected."
+      end
     end
   end
 end

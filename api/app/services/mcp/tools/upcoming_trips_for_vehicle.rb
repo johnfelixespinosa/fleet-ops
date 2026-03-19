@@ -36,6 +36,18 @@ module Mcp
           }
         end
       end
+
+      def self.summary(results, params)
+        vehicle = Vehicle.find_by(id: params["vehicle_id"])
+        unit = vehicle&.unit_number || "Unknown"
+        days = params["days_ahead"] || 14
+        if results.empty?
+          "No scheduled trips found for #{unit} in the next #{days} days."
+        else
+          routes = results.map { |t| "#{t[:trip_number]} to #{t[:destination]} (#{t[:distance_miles]} mi)" }.join("; ")
+          "Found #{results.size} upcoming trip#{"s" if results.size > 1} for #{unit}: #{routes}"
+        end
+      end
     end
   end
 end
