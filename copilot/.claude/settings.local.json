@@ -1,4 +1,9 @@
 {
   "enabledPlugins": {},
-  "alwaysThinkingEnabled": false
+  "alwaysThinkingEnabled": false,
+  "mcpServers": {
+    "fleetops": {
+      "command": "/Users/johnespinosa/Desktop/Projects/fleet-ops/api/bin/mcp_server_wrapper"
+    }
+  }
 }
