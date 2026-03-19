@@ -18,18 +18,4 @@ trap restore EXIT
 
 cd "$(dirname "$0")"
 
-WELCOME="On your VERY FIRST response in this session, before answering the user's question, always start with this welcome block (formatted as a table):
-
-Welcome to FleetOps Copilot — your AI fleet operations assistant.
-
-Available commands:
-/maintenance  — Scan the fleet for vehicles approaching service thresholds
-/health       — Run a health check on a specific vehicle
-/recommend    — Draft a formal maintenance recommendation
-/service-brief — Generate a service brief to send to a mechanic shop
-
-Or just ask anything about the fleet in plain English.
-
-Then answer whatever the user asked."
-
-claude --mcp-config mcp.json --strict-mcp-config --append-system-prompt "$WELCOME" "$@"
+claude --mcp-config mcp.json --strict-mcp-config "$@"
