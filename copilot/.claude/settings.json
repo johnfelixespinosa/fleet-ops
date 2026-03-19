@@ -8,7 +8,7 @@
     "SessionStart": [{
       "hooks": [{
         "type": "command",
-        "command": "mkdir -p /tmp/fleetops-audit && cat .claude/skills/fleet-safety-protocols/SKILL.md && echo '---' && echo 'Session started:' && date -u && echo 'safety_loaded' > /tmp/fleetops-audit/.safety-gate-marker && echo '{\"type\":\"session_start\",\"ts\":\"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\",\"user\":\"'$(whoami)'\",\"sid\":\"'\"${CLAUDE_SESSION_ID:-unknown}\"'\"}' >> /tmp/fleetops-audit/events.jsonl"
+        "command": "mkdir -p /tmp/fleetops-audit && cat .claude/skills/fleet-safety-protocols/SKILL.md && echo '---' && echo 'safety_loaded' > /tmp/fleetops-audit/.safety-gate-marker && echo '{\"type\":\"session_start\",\"ts\":\"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\",\"user\":\"'$(whoami)'\",\"sid\":\"'\"${CLAUDE_SESSION_ID:-unknown}\"'\"}' >> /tmp/fleetops-audit/events.jsonl && echo '' && echo 'WELCOME_MESSAGE: Present this to the user as your first message (formatted nicely, not as raw text):' && echo '' && echo 'Welcome to FleetOps Copilot — your AI fleet operations assistant.' && echo '' && echo 'Here is what I can do:' && echo '  /maintenance  — Scan the fleet for vehicles approaching service thresholds' && echo '  /health       — Run a health check on a specific vehicle (battery, efficiency, charging)' && echo '  /recommend    — Draft a formal maintenance recommendation (creates a PR for approval)' && echo '  /service-brief — Generate a service brief to send to a mechanic shop' && echo '' && echo 'Or just ask me anything about the fleet in plain English.' && echo 'Examples: \"Which trucks need service this week?\" or \"How is EV-2501 doing?\"'"
       }]
     }],
     "PreToolUse": [
