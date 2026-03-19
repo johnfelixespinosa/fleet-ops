@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FleetOps Copilot — Case Study Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --bg: #0a0f1a;
+  --surface: #111827;
+  --surface-elevated: #1a2332;
+  --border: rgba(255,255,255,0.06);
+  --text: #e8ecf4;
+  --text-dim: #7a8599;
+  --accent: #0d9488;
+  --accent-light: #14b8a6;
+  --accent-dim: rgba(13,148,136,0.15);
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+
+.deck {
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slide {
+  height: 100dvh;
+  scroll-snap-align: start;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 6vh, 80px) clamp(40px, 8vw, 120px);
+  isolation: isolate;
+  opacity: 0;
+  transform: translateY(40px) scale(0.98);
+  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.slide.visible { opacity: 1; transform: none; }
+
+.slide .reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.slide.visible .reveal { opacity: 1; transform: none; }
+.slide.visible .reveal:nth-child(1) { transition-delay: 0.1s; }
+.slide.visible .reveal:nth-child(2) { transition-delay: 0.2s; }
+.slide.visible .reveal:nth-child(3) { transition-delay: 0.3s; }
+.slide.visible .reveal:nth-child(4) { transition-delay: 0.4s; }
+.slide.visible .reveal:nth-child(5) { transition-delay: 0.5s; }
+.slide.visible .reveal:nth-child(6) { transition-delay: 0.6s; }
+.slide.visible .reveal:nth-child(7) { transition-delay: 0.7s; }
+.slide.visible .reveal:nth-child(8) { transition-delay: 0.8s; }
+
+/* Typography */
+.slide__display { font-size: clamp(48px,10vw,110px); font-weight: 800; letter-spacing: -3px; line-height: 0.95; text-wrap: balance; }
+.slide__heading { font-size: clamp(28px,5vw,48px); font-weight: 700; letter-spacing: -1px; line-height: 1.1; text-wrap: balance; }
+.slide__body { font-size: clamp(16px,2.2vw,22px); line-height: 1.6; color: var(--text-dim); }
+.slide__label { font-family: var(--font-mono); font-size: clamp(10px,1.2vw,13px); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-light); }
+.slide__number { font-size: clamp(100px,22vw,260px); font-weight: 200; line-height: 0.85; opacity: 0.04; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); pointer-events: none; color: var(--accent-light); }
+
+/* Navigation */
+.deck-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 100; transition: width 0.3s ease; pointer-events: none; }
+.deck-dots { position: fixed; right: clamp(12px,2vw,24px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+.deck-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); opacity: 0.3; border: none; padding: 0; cursor: pointer; transition: opacity 0.2s, transform 0.2s; }
+.deck-dot:hover { opacity: 0.6; }
+.deck-dot.active { opacity: 1; transform: scale(1.5); background: var(--accent); }
+.deck-counter { position: fixed; bottom: clamp(12px,2vh,24px); right: clamp(12px,2vw,24px); font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); z-index: 100; }
+.deck-hints { position: fixed; bottom: clamp(12px,2vh,24px); left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); opacity: 0.5; z-index: 100; transition: opacity 0.5s; }
+.deck-hints.faded { opacity: 0; pointer-events: none; }
+
+/* Layouts */
+.slide--title { justify-content: center; align-items: center; text-align: center; background: radial-gradient(ellipse at 30% 80%, rgba(13,148,136,0.12) 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(13,148,136,0.06) 0%, transparent 50%), var(--bg); }
+.slide--divider { justify-content: center; }
+.slide--content .slide__inner { display: grid; grid-template-columns: 3fr 2fr; gap: clamp(24px,4vw,60px); align-items: center; }
+.slide--split .slide__inner { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px,4vw,60px); align-items: center; }
+.slide--content .slide__bullets { list-style: none; padding: 0; }
+.slide--content .slide__bullets li { padding: 0.6em 0; border-bottom: 1px solid var(--border); font-size: clamp(15px,2vw,20px); color: var(--text); }
+.slide--content .slide__bullets li:last-child { border-bottom: none; }
+.slide--content .slide__bullets li::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 12px; vertical-align: middle; }
+
+/* Cards */
+.card-grid { display: grid; gap: 16px; }
+.card-grid--3 { grid-template-columns: repeat(3,1fr); }
+.card-grid--2 { grid-template-columns: repeat(2,1fr); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: clamp(16px,2vw,28px); }
+.card__label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-light); margin-bottom: 8px; }
+.card__title { font-size: clamp(16px,2vw,22px); font-weight: 700; margin-bottom: 6px; }
+.card__body { font-size: clamp(13px,1.5vw,16px); color: var(--text-dim); line-height: 1.5; }
+
+/* KPI */
+.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin: 24px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+.kpi__val { font-size: clamp(28px,4vw,42px); font-weight: 800; color: var(--accent-light); }
+.kpi__label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-top: 4px; }
+
+/* Comparison table */
+.compare { width: 100%; border-collapse: collapse; font-size: clamp(13px,1.5vw,16px); }
+.compare th { text-align: left; padding: 10px 16px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-light); border-bottom: 2px solid var(--accent); }
+.compare td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+.compare td:first-child { color: var(--text); font-weight: 600; }
+
+/* Architecture diagram */
+.arch-layer { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+.arch-layer__num { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--accent-light); background: var(--accent-dim); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.arch-layer__title { font-weight: 700; font-size: clamp(14px,1.8vw,18px); }
+.arch-layer__desc { font-size: clamp(12px,1.4vw,15px); color: var(--text-dim); margin-top: 2px; }
+.arch-connector { width: 2px; height: 20px; background: var(--accent); margin: 0 auto; opacity: 0.4; }
+
+/* Code block */
+.code-block { background: #0d1117; border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; font-family: var(--font-mono); font-size: clamp(12px,1.4vw,15px); color: #c9d1d9; overflow-x: auto; line-height: 1.6; }
+.code-block .comment { color: #6a737d; }
+.code-block .string { color: #a5d6ff; }
+.code-block .keyword { color: #ff7b72; }
+
+/* Tag */
+.tag { display: inline-block; font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: 6px; background: var(--accent-dim); color: var(--accent-light); font-weight: 600; }
+
+/* Author footer */
+.author { position: absolute; bottom: clamp(20px,3vh,40px); left: clamp(40px,8vw,120px); display: flex; align-items: center; gap: 12px; }
+.author__name { font-weight: 600; font-size: 14px; }
+.author__role { font-size: 12px; color: var(--text-dim); }
+
+@media (max-width: 768px) {
+  .slide--content .slide__inner, .slide--split .slide__inner { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .card-grid--3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<section class="slide slide--title">
+  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.03" viewBox="0 0 1200 800">
+    <circle cx="200" cy="600" r="300" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="1000" cy="200" r="200" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="0" y1="400" x2="1200" y2="400" stroke="currentColor" stroke-width="0.5" stroke-dasharray="8 8"/>
+  </svg>
+  <div>
+    <p class="slide__label reveal" style="margin-bottom:24px">Case Study — Archer Aviation</p>
+    <h1 class="slide__display reveal">Fleet<span style="color:var(--accent-light)">Ops</span> Copilot</h1>
+    <p class="slide__body reveal" style="max-width:700px;margin:24px auto 0;font-size:clamp(16px,2.2vw,22px)">
+      An AI fleet operations assistant that reasons over real data to produce evidence-backed maintenance recommendations
+    </p>
+  </div>
+  <div class="author reveal">
+    <div>
+      <div class="author__name">John Espinosa</div>
+      <div class="author__role">Software Engineer · March 2026</div>
+      <div style="display:flex;gap:16px;margin-top:6px">
+        <a href="https://github.com/johnfelixespinosa/fleet-ops" target="_blank" style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);text-decoration:none;opacity:0.7">github.com/johnfelixespinosa/fleet-ops</a>
+        <a href="https://fleetops-api-production.up.railway.app" target="_blank" style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);text-decoration:none;opacity:0.7">fleetops-api-production.up.railway.app</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: TABLE OF CONTENTS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:1fr 2fr;gap:clamp(24px,6vw,80px);align-items:center;max-width:1000px">
+    <div>
+      <p class="slide__label reveal">Agenda</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(28px,5vw,44px)">What we'll cover</h2>
+    </div>
+    <div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">01</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">The Problem</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">Data access bottleneck</span>
+        </div>
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">02</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">The Product</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">FleetOps Copilot</span>
+        </div>
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">03</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">Tools & Skills</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">MCP tools, investigation workflows</span>
+        </div>
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">04</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">Safety & Guardrails</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">Protocols, hooks, audit trail</span>
+        </div>
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">05</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">Live Demo</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">End-to-end walkthrough</span>
+        </div>
+        <div class="reveal" style="display:flex;align-items:baseline;gap:16px;padding:12px 0">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-light);font-weight:700;width:24px">06</span>
+          <span style="font-size:clamp(15px,2vw,20px);font-weight:600;color:var(--text)">What's Next</span>
+          <span style="font-size:12px;color:var(--text-dim);margin-left:auto">Expansion & roadmap</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: THE PROBLEM -->
+<!-- ============================================================ -->
+<section class="slide slide--divider">
+  <span class="slide__number">01</span>
+  <div>
+    <p class="slide__label reveal">The Problem</p>
+    <h2 class="slide__heading reveal" style="max-width:800px;margin-top:12px">
+      Fleet data is trapped behind complex queries and disconnected systems
+    </h2>
+    <p class="slide__body reveal" style="max-width:700px;margin-top:20px">
+      An EV fleet generates thousands of data points — mileage, battery health, trip schedules, charging events, maintenance records, service center capabilities. Getting answers means writing queries, joining tables, and manually cross-referencing across systems. The data exists. Accessing it intelligently is the bottleneck.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: THE INSIGHT — NLP DATA ACCESS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <span class="slide__number">02</span>
+  <p class="slide__label reveal">The Insight</p>
+  <h2 class="slide__heading reveal" style="margin-top:12px;margin-bottom:32px;max-width:900px;text-align:center">
+    Use natural language to access<br>operational data intelligently
+  </h2>
+  <div class="reveal" style="display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;max-width:1000px">
+    <!-- Before -->
+    <div class="card" style="border-color:rgba(239,68,68,0.2)">
+      <div class="card__label" style="color:var(--danger)">Without an LLM</div>
+      <div class="code-block" style="margin-top:12px;font-size:12px;line-height:1.7">
+<span class="keyword">SELECT</span> v.unit_number, v.current_mileage,
+  v.next_maintenance_due_mileage,
+  t.trip_number, t.distance_miles,
+  sc.name, sc.city
+<span class="keyword">FROM</span> vehicles v
+<span class="keyword">JOIN</span> trips t <span class="keyword">ON</span> t.vehicle_id = v.id
+<span class="keyword">JOIN LATERAL</span> (<span class="comment">...</span>) sc
+<span class="keyword">WHERE</span> v.status = <span class="string">'active'</span>
+  <span class="keyword">AND</span> v.next_maintenance_due_mileage
+    - v.current_mileage < <span class="string">5000</span>
+<span class="keyword">ORDER BY</span> <span class="comment">...</span></div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:10px">Write SQL, join 4 tables, calculate projections manually, hope the query is right</p>
+    </div>
+    <!-- Arrow -->
+    <div style="text-align:center">
+      <div style="font-size:36px;color:var(--accent-light)">→</div>
+    </div>
+    <!-- After -->
+    <div class="card" style="border-color:rgba(13,148,136,0.3)">
+      <div class="card__label">With FleetOps Copilot</div>
+      <div style="background:var(--surface-elevated);border-radius:8px;padding:16px 20px;margin-top:12px;font-size:clamp(15px,1.8vw,19px);color:var(--text);line-height:1.6;font-style:italic">
+        "Which trucks need service this week, and are there any shops on their routes?"
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:10px">The LLM calls the right tools, cross-references the data, ranks by urgency, and presents findings in plain language</p>
+    </div>
+  </div>
+  <p class="slide__body reveal" style="margin-top:28px;max-width:750px;text-align:center;margin-left:auto;margin-right:auto;font-size:clamp(14px,1.6vw,17px)">
+    The data layer already exists. The LLM provides the <strong style="color:var(--text)">intelligence layer</strong> — reasoning across multiple data sources in natural language, at the speed of a conversation.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: THE PRODUCT -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,50px);align-items:start;max-width:1100px">
+    <div>
+      <p class="slide__label reveal">The Product</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(24px,4vw,38px)">FleetOps Copilot</h2>
+      <p class="slide__body reveal" style="margin-top:12px;font-size:clamp(13px,1.4vw,16px)">
+        A domain-specific AI assistant that queries production fleet data through 6 MCP tools, runs structured investigation workflows, and generates evidence-backed reports and recommendations.
+      </p>
+
+      <!-- MCP Tools -->
+      <div class="reveal" style="margin-top:20px">
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent-light);margin-bottom:8px">6 MCP Tools (Read-Only)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">vehicles_due_for_maintenance</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Scan fleet, project thresholds</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">upcoming_trips_for_vehicle</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Scheduled routes & dates</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">service_centers_near_route</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Shops along trip waypoints</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">vehicle_health_summary</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Battery, efficiency, charging</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">draft_maintenance_recommendation</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Structured rec + evidence</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+            <div style="font-weight:700;font-size:12px;color:var(--text)">fleet_query</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px">General-purpose data lookup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <!-- Recreated CLI terminal -->
+      <div class="reveal" style="background:#1a1b26;border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        <!-- Title bar -->
+        <div style="background:#16161e;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div style="width:10px;height:10px;border-radius:50%;background:#ff5f56"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:#ffbd2e"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:#27c93f"></div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-left:8px">fleet-ops/copilot</span>
+        </div>
+        <!-- Terminal content -->
+        <div style="padding:16px 18px;font-family:var(--font-mono);font-size:12px;line-height:1.8;color:#c0caf5">
+          <div><span style="color:#7aa2f7">→</span> <span style="color:#9ece6a">copilot</span> <span style="color:#bb9af7">git:(main)</span> start-copilot</div>
+          <div style="margin-top:6px;color:#ff9e64">▐▛███▜▌</span>&nbsp;&nbsp; <span style="color:#c0caf5;font-weight:700">Claude Code</span> <span style="color:#565f89">v2.1.79</span></div>
+          <div style="color:#565f89">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Opus 4.6 (1M context)</div>
+          <div style="margin-top:10px;color:#c0caf5">● Welcome to <strong style="color:#7aa2f7">FleetOps Copilot</strong> — your AI fleet operations assistant.</div>
+          <div style="margin-top:8px;color:#a9b1d6">Here's what I can do:</div>
+          <div style="margin-top:6px;border:1px solid #3b4261;border-radius:6px;padding:8px 0;font-size:11px">
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 16px;padding:0 12px">
+              <div style="color:#9ece6a;font-weight:600">/maintenance</div><div style="color:#a9b1d6">Scan fleet for vehicles approaching thresholds</div>
+              <div style="color:#9ece6a;font-weight:600">/health</div><div style="color:#a9b1d6">Run a health check on a specific vehicle</div>
+              <div style="color:#9ece6a;font-weight:600">/recommend</div><div style="color:#a9b1d6">Draft a formal maintenance recommendation</div>
+              <div style="color:#9ece6a;font-weight:600">/service-brief</div><div style="color:#a9b1d6">Generate a service brief for a mechanic shop</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;color:#a9b1d6;font-size:11px">Or just ask anything about the fleet in plain English.</div>
+          <div style="margin-top:10px"><span style="color:#7aa2f7">❯</span> <span style="color:#565f89;animation:blink 1s infinite">█</span></div>
+        </div>
+      </div>
+
+      <!-- Skills & Reports row -->
+      <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--warning);margin-bottom:4px">4 Skills</div>
+          <div style="font-size:11px;color:var(--text-dim);line-height:1.5">Maintenance Scan · Health Check · Draft Recommendation · Service Brief</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8b5cf6;margin-bottom:4px">4 HTML Reports</div>
+          <div style="font-size:11px;color:var(--text-dim);line-height:1.5">Investigation Report · Health Report · Recommendation Doc · Mechanic Brief</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE: INSIDE THE COPILOT (.claude directory) -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:2fr 3fr;gap:clamp(24px,4vw,60px);align-items:start;max-width:1100px">
+    <div>
+      <p class="slide__label reveal">Inside the Copilot</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(24px,4vw,38px)">The .claude directory</h2>
+      <p class="slide__body reveal" style="margin-top:12px;font-size:clamp(13px,1.4vw,16px)">
+        Everything that turns a general-purpose AI into a domain-specific fleet operations tool lives here. No custom app code — just configuration.
+      </p>
+    </div>
+    <div class="reveal">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;font-family:var(--font-mono);font-size:clamp(11px,1.2vw,13px);line-height:2;color:var(--text-dim);overflow:hidden">
+        <div style="color:var(--accent-light);font-weight:700">copilot/</div>
+        <div>&nbsp;&nbsp;├── <span style="color:var(--text);font-weight:600">.claude/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--warning)">CLAUDE.md</span> <span style="opacity:0.5">— role, rules, domain knowledge, 6 tool docs</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--text-dim)">settings.json</span> <span style="opacity:0.5">— hook definitions</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span style="color:var(--text);font-weight:600">skills/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">fleet-safety-protocols/</span> <span style="opacity:0.5">— loaded at session start</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">find-maintenance-opportunities/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── SKILL.md, gotchas.md</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── templates/investigation-report.html</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">vehicle-health-check/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── SKILL.md, gotchas.md</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── templates/health-report.html</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">draft-maintenance-plan/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── SKILL.md, gotchas.md</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── templates/recommendation.html + .md</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">mechanic-service-brief/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── SKILL.md, gotchas.md</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── templates/service-brief.html</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-light)">report-styles/</span> <span style="opacity:0.5">— shared CSS + base layout</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span style="color:var(--text-dim)">skill-chain.json</span> <span style="opacity:0.5">— pipeline manifest</span></div>
+        <div>&nbsp;&nbsp;├── <span style="color:var(--text);font-weight:600">bin/hooks/</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--danger)">session-start.sh</span> <span style="opacity:0.5">— safety gate + audit init</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--danger)">post-tool-use.sh</span> <span style="opacity:0.5">— logs tool name + query</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--danger)">stop.sh</span> <span style="opacity:0.5">— writes end event</span></div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span style="color:var(--danger)">session-end-post.sh</span> <span style="opacity:0.5">— POSTs to production API</span></div>
+        <div>&nbsp;&nbsp;├── <span style="color:var(--text-dim)">mcp.json</span> <span style="opacity:0.5">— MCP server config</span></div>
+        <div>&nbsp;&nbsp;└── <span style="color:var(--text-dim)">start</span> <span style="opacity:0.5">— launch script</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE: BUILT-IN TOOLS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <p class="slide__label reveal">MCP Tools</p>
+  <h2 class="slide__heading reveal" style="margin-top:12px;margin-bottom:8px">6 built-in tools <span style="font-weight:400;font-size:clamp(16px,2.5vw,24px);color:var(--text-dim)">— and growing</span></h2>
+  <p class="slide__body reveal" style="max-width:700px;margin-bottom:24px;font-size:clamp(13px,1.4vw,16px)">
+    Each tool wraps a read-only database query behind the MCP protocol. New tools can be added by creating a Ruby class — the copilot discovers them automatically.
+  </p>
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1000px">
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">vehicles_due_for_maintenance</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">Projects daily mileage from recent trips, estimates when each vehicle will hit its threshold, ranks by urgency</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">upcoming_trips_for_vehicle</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">Returns scheduled trips with routes, distances, departure times, and cargo weights within a time window</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">service_centers_near_route</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">Haversine distance search along trip waypoints for EV-certified partner shops within radius</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">vehicle_health_summary</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">Aggregates efficiency trends, charging patterns, battery health, and maintenance history for a vehicle</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">draft_maintenance_recommendation</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">Combines vehicle + service center + trip into a structured recommendation with evidence and assumptions</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-light);margin-bottom:6px">fleet_query</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5">General-purpose data lookup — vehicles by unit, trips by date, service centers by city, maintenance history</div>
+    </div>
+  </div>
+  <!-- Real code snippet -->
+  <div class="reveal" style="margin-top:16px;max-width:1000px">
+    <div style="background:#0d1117;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:#161b22;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff5f56"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#27c93f"></div>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-left:6px">app/services/mcp/tools/vehicles_due_for_maintenance.rb</span>
+      </div>
+<pre style="margin:0;padding:14px 18px;font-family:var(--font-mono);font-size:11px;line-height:1.7;color:#c9d1d9;overflow-x:auto;white-space:pre"><span style="color:#ff7b72">module</span> <span style="color:#ffa657">Mcp</span>
+  <span style="color:#ff7b72">module</span> <span style="color:#ffa657">Tools</span>
+    <span style="color:#ff7b72">class</span> <span style="color:#ffa657">VehiclesDueForMaintenance</span>
+      <span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">self</span>.tool_name = <span style="color:#a5d6ff">"vehicles_due_for_maintenance"</span>
+
+      <span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">self</span>.description
+        <span style="color:#a5d6ff">"Find vehicles approaching or past their maintenance threshold</span>
+        <span style="color:#a5d6ff"> within a given number of days."</span>
+      <span style="color:#ff7b72">end</span>
+
+      <span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">self</span>.input_schema
+        { type: <span style="color:#a5d6ff">"object"</span>, properties: {
+            within_days: { type: <span style="color:#a5d6ff">"integer"</span>, default: <span style="color:#79c0ff">7</span> }
+        }}
+      <span style="color:#ff7b72">end</span>
+
+      <span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">self</span>.execute(params)
+        within_days = (params[<span style="color:#a5d6ff">"within_days"</span>] || <span style="color:#79c0ff">7</span>).to_i
+        vehicles = <span style="color:#ffa657">Vehicle</span>.active
+
+        results = vehicles.filter_map <span style="color:#ff7b72">do</span> |v|
+          <span style="color:#6a737d"># Calculate avg daily mileage from last 30 days</span>
+          recent_trips = v.trips.where(status: <span style="color:#a5d6ff">"completed"</span>)
+                                .where(<span style="color:#a5d6ff">"return_at > ?"</span>, <span style="color:#79c0ff">30</span>.days.ago)
+          daily_miles = recent_trips.any? ? <span style="color:#6a737d">...</span> : <span style="color:#79c0ff">0</span>
+
+          projected = v.current_mileage + (daily_miles * within_days)
+          miles_left = v.next_maintenance_due_mileage - v.current_mileage
+
+          <span style="color:#ff7b72">if</span> projected >= v.next_maintenance_due_mileage || miles_left <= <span style="color:#79c0ff">1000</span>
+            { unit_number: v.unit_number, vehicle_id: v.id,
+              miles_remaining: miles_left, maintenance_type: v.next_maintenance_type,
+              daily_mileage_estimate: daily_miles, <span style="color:#6a737d">...</span> }
+          <span style="color:#ff7b72">end</span>
+        <span style="color:#ff7b72">end</span>
+
+        results.sort_by { |r| r[<span style="color:#a5d6ff">:miles_remaining</span>] }
+      <span style="color:#ff7b72">end</span>
+    <span style="color:#ff7b72">end</span>
+  <span style="color:#ff7b72">end</span>
+<span style="color:#ff7b72">end</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5b: BUILT-IN SKILLS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <p class="slide__label reveal">Investigation Workflows</p>
+  <h2 class="slide__heading reveal" style="margin-top:12px;margin-bottom:8px">4 built-in skills <span style="font-weight:400;font-size:clamp(16px,2.5vw,24px);color:var(--text-dim)">— extensible by design</span></h2>
+  <p class="slide__body reveal" style="max-width:750px;margin-bottom:24px;font-size:clamp(13px,1.4vw,16px)">
+    Skills are multi-step investigation workflows. Each skill has a SKILL.md orchestrator, gotchas file for edge cases, and HTML report templates. New skills are added by creating a folder — no code changes required.
+  </p>
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:1000px">
+    <!-- Maintenance Scan -->
+    <div class="card" style="border-left:3px solid var(--warning)">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--text)">Find Maintenance Opportunities</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:2px">/maintenance</div>
+        </div>
+        <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.2)">Multi-step</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-top:10px">Scans fleet → checks upcoming trips → finds service centers on routes → ranks by urgency → generates investigation report</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic">Calls: vehicles_due → upcoming_trips → service_centers_near_route</div>
+    </div>
+    <!-- Health Check -->
+    <div class="card" style="border-left:3px solid #22c55e">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--text)">Vehicle Health Check</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:2px">/health</div>
+        </div>
+        <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">Diagnostic</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-top:10px">Analyzes efficiency vs model benchmarks, battery degradation rate, charging patterns → classifies as normal / monitor / investigate / urgent</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic">Calls: vehicle_health_summary</div>
+    </div>
+    <!-- Recommendation -->
+    <div class="card" style="border-left:3px solid #8b5cf6">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--text)">Draft Maintenance Plan</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:2px">/recommend</div>
+        </div>
+        <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.2)">Approval</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-top:10px">Generates HTML recommendation + markdown artifact → commits to git branch → creates PR for fleet manager approval</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic">Calls: draft_maintenance_recommendation</div>
+    </div>
+    <!-- Service Brief -->
+    <div class="card" style="border-left:3px solid var(--danger)">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--text)">Mechanic Service Brief</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:2px">/service-brief</div>
+        </div>
+        <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)">External</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-top:10px">Generates service brief for mechanic with vehicle specs, history, EV safety reminder → mock-emails to service center contact</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic">Calls: vehicle_health_summary</div>
+    </div>
+  </div>
+  <!-- Real SKILL.md snippet -->
+  <div class="reveal" style="margin-top:16px;max-width:1000px">
+    <div style="background:#0d1117;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:#161b22;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff5f56"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#27c93f"></div>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-left:6px">skills/find-maintenance-opportunities/SKILL.md</span>
+      </div>
+<pre style="margin:0;padding:14px 18px;font-family:var(--font-mono);font-size:11px;line-height:1.8;color:#c9d1d9;overflow-x:auto;white-space:pre"><span style="color:#ffa657">---</span>
+<span style="color:#7ee787">name:</span>        find-maintenance-opportunities
+<span style="color:#7ee787">description:</span> <span style="color:#a5d6ff">Use when asked about vehicles due for maintenance,</span>
+             <span style="color:#a5d6ff">upcoming service needs, or fleet maintenance scheduling.</span>
+             <span style="color:#a5d6ff">Runs a multi-step investigation and outputs a</span>
+             <span style="color:#a5d6ff">Maintenance Investigation Report HTML page.</span>
+<span style="color:#ffa657">---</span>
+
+<span style="color:#79c0ff;font-weight:700"># Find Maintenance Opportunities</span>
+
+<span style="color:#d2a8ff;font-weight:600">## Workflow</span>
+
+ <span style="color:#79c0ff">1.</span> Call <span style="color:#a5d6ff">`vehicles_due_for_maintenance`</span> with the requested time window
+ <span style="color:#79c0ff">2.</span> For each flagged vehicle, call <span style="color:#a5d6ff">`upcoming_trips_for_vehicle`</span>
+    to understand scheduling impact
+ <span style="color:#79c0ff">3.</span> For vehicles with upcoming trips, call
+    <span style="color:#a5d6ff">`service_centers_near_route`</span> <span style="color:#6a737d">(leg: "return")</span>
+    to find low-disruption service options
+ <span style="color:#79c0ff">4.</span> Rank opportunities by: miles remaining to threshold,
+    number of affected trips, proximity of service centers
+ <span style="color:#79c0ff">5.</span> Read <span style="color:#a5d6ff">`gotchas.md`</span> before generating output
+ <span style="color:#79c0ff">6.</span> Copy <span style="color:#a5d6ff">`templates/investigation-report.html`</span>, fill with data
+ <span style="color:#79c0ff">7.</span> Write to <span style="color:#a5d6ff">`/tmp/fleetops-reports/maintenance-investigation-{date}-{unique6}.html`</span>
+ <span style="color:#79c0ff">8.</span> Open in browser</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: FLEET SAFETY PROTOCOLS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:2fr 3fr;gap:clamp(24px,4vw,50px);align-items:start;max-width:1100px">
+    <div>
+      <p class="slide__label reveal">First Line of Defense</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(24px,4vw,38px)">Fleet Safety Protocols</h2>
+      <p class="slide__body reveal" style="margin-top:16px;font-size:clamp(13px,1.5vw,17px)">
+        Before any MCP tool can execute — before the copilot can query a single vehicle, trip, or service center — this skill is loaded automatically by the <strong style="color:var(--text)">SessionStart hook</strong>.
+      </p>
+      <div class="reveal" style="margin-top:20px">
+        <!-- Flow diagram -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;font-family:var(--font-mono);font-size:11px;color:var(--accent-light);white-space:nowrap">start-copilot</div>
+            <div style="color:var(--text-dim)">→</div>
+            <div style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;font-family:var(--font-mono);font-size:11px;color:var(--accent-light);white-space:nowrap">SessionStart hook</div>
+          </div>
+          <div style="margin-left:40px;color:var(--text-dim);font-size:12px">↓</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-left:40px">
+            <div style="background:rgba(245,158,11,0.1);border:1px solid var(--warning);border-radius:8px;padding:6px 12px;font-family:var(--font-mono);font-size:11px;color:var(--warning);white-space:nowrap">Load safety protocols</div>
+            <div style="color:var(--text-dim)">+</div>
+            <div style="background:rgba(245,158,11,0.1);border:1px solid var(--warning);border-radius:8px;padding:6px 12px;font-family:var(--font-mono);font-size:11px;color:var(--warning);white-space:nowrap">Write .safety-gate-marker</div>
+          </div>
+          <div style="margin-left:40px;color:var(--text-dim);font-size:12px">↓</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-left:40px">
+            <div style="background:rgba(34,197,94,0.1);border:1px solid #22c55e;border-radius:8px;padding:6px 12px;font-family:var(--font-mono);font-size:11px;color:#22c55e;white-space:nowrap">MCP tools unlocked ✓</div>
+          </div>
+          <div style="margin-top:8px;margin-left:40px;font-size:12px;color:var(--text-dim);font-style:italic">
+            Without marker → <span style="color:var(--danger);font-weight:600">BLOCKED</span> at PreToolUse
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <!-- Protocol card styled as a document -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <!-- Header -->
+        <div style="background:var(--surface-elevated);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--danger)"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--warning)"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:#22c55e"></div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-left:8px">fleet-safety-protocols/SKILL.md</span>
+        </div>
+        <!-- Content -->
+        <div style="padding:20px;font-size:clamp(12px,1.3vw,14px);line-height:1.8">
+          <div style="color:var(--text-dim);border:1px dashed rgba(255,255,255,0.1);border-radius:6px;padding:8px 12px;margin-bottom:14px;font-family:var(--font-mono);font-size:11px;line-height:1.6">
+            <span style="color:var(--warning)">---</span><br>
+            <span style="color:var(--text-dim)">name:</span> <span style="color:var(--accent-light)">fleet-safety-protocols</span><br>
+            <span style="color:var(--text-dim)">description:</span> <span style="color:#a5d6ff">Safety protocols that must be loaded<br>&nbsp;&nbsp;before using any fleet data tools.<br>&nbsp;&nbsp;Loaded automatically by SessionStart hook.</span><br>
+            <span style="color:var(--warning)">---</span>
+          </div>
+
+          <div style="font-weight:700;color:var(--accent-light);font-size:clamp(14px,1.5vw,16px);margin-bottom:12px"># Fleet Safety Protocols</div>
+
+          <div style="font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px">## Data Access</div>
+          <div style="color:var(--text-dim);padding-left:12px;border-left:2px solid var(--accent)">
+            <div>• All database access is <span style="color:var(--accent-light);font-weight:600">READ-ONLY</span> via curated MCP tools</div>
+            <div>• Never attempt to write, update, or delete operational data</div>
+            <div>• Never execute raw SQL or direct database commands</div>
+          </div>
+
+          <div style="font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px">## Recommendations</div>
+          <div style="color:var(--text-dim);padding-left:12px;border-left:2px solid var(--warning)">
+            <div>• All recommendations are <span style="color:var(--warning);font-weight:600">PROPOSALS</span> for human review</div>
+            <div>• Always include evidence + assumptions</div>
+            <div>• Submitted as git PRs for fleet manager approval</div>
+          </div>
+
+          <div style="font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px">## Audit</div>
+          <div style="color:var(--text-dim);padding-left:12px;border-left:2px solid #8b5cf6">
+            <div>• Every tool call is logged automatically</div>
+            <div>• Every session is recorded for audit purposes</div>
+            <div>• Always identify as FleetOps Copilot in artifacts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE: GUARDRAILS & HOOKS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center;align-items:center">
+  <div style="max-width:900px">
+    <p class="slide__label reveal">Guardrails</p>
+    <h2 class="slide__heading reveal" style="margin-top:12px;margin-bottom:32px">Built-in safety at every step</h2>
+    <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card" style="text-align:center;padding:clamp(20px,3vw,32px)">
+        <div style="width:56px;height:56px;border-radius:14px;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg style="width:26px;height:26px;color:var(--accent-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div style="font-weight:700;font-size:clamp(15px,2vw,18px);color:var(--text);margin-bottom:8px">Safety First</div>
+        <div style="font-size:clamp(12px,1.3vw,15px);color:var(--text-dim);line-height:1.6">
+          Before the copilot can access any fleet data, the safety protocols are automatically loaded. All data access is <strong style="color:var(--text)">read-only</strong> — the copilot can query but never modify operational data.
+        </div>
+      </div>
+      <div class="card" style="text-align:center;padding:clamp(20px,3vw,32px)">
+        <div style="width:56px;height:56px;border-radius:14px;background:rgba(245,158,11,0.1);border:2px solid var(--warning);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg style="width:26px;height:26px;color:var(--warning)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div style="font-weight:700;font-size:clamp(15px,2vw,18px);color:var(--text);margin-bottom:8px">Every Action Logged</div>
+        <div style="font-size:clamp(12px,1.3vw,15px);color:var(--text-dim);line-height:1.6">
+          Every tool call is recorded — which tool, what was queried, when, and by whom. When a session ends, the full audit trail is synced to the <strong style="color:var(--text)">production dashboard</strong>.
+        </div>
+      </div>
+      <div class="card" style="text-align:center;padding:clamp(20px,3vw,32px)">
+        <div style="width:56px;height:56px;border-radius:14px;background:rgba(139,92,246,0.1);border:2px solid #8b5cf6;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg style="width:26px;height:26px;color:#a78bfa" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        </div>
+        <div style="font-weight:700;font-size:clamp(15px,2vw,18px);color:var(--text);margin-bottom:8px">Human Approval</div>
+        <div style="font-size:clamp(12px,1.3vw,15px);color:var(--text-dim);line-height:1.6">
+          Maintenance recommendations are <strong style="color:var(--text)">proposals, not actions</strong>. They're submitted as GitHub PRs for fleet manager review. Every recommendation includes evidence and assumptions.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE: COPILOT SESSIONS -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:3fr 2fr;gap:clamp(24px,4vw,50px);align-items:start;max-width:1100px">
+    <div>
+      <p class="slide__label reveal">Observability</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(24px,4vw,38px)">Copilot Session Tracking</h2>
+      <p class="slide__body reveal" style="margin-top:12px;font-size:clamp(13px,1.4vw,16px)">
+        Every copilot session is captured end-to-end and posted to the production dashboard. Fleet managers can see who used the copilot, what tools were called, what data was queried, and how long the session lasted.
+      </p>
+
+      <!-- Recreated session list -->
+      <div class="reveal" style="margin-top:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700;font-size:14px">Copilot Sessions</div>
+          <div style="font-size:11px;color:var(--text-dim)">3 sessions · 27 tool calls</div>
+        </div>
+        <!-- Session row 1 -->
+        <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center">
+              <svg style="width:16px;height:16px;color:var(--accent-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:12px">johnespinosa</div>
+              <div style="font-size:10px;color:var(--text-dim)">15 tool calls · fleet_query (11x), vehicles_due (1x) ...</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:10px;color:var(--text-dim)">8 min</div>
+            <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">Completed</span>
+          </div>
+        </div>
+        <!-- Session row 2 -->
+        <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center">
+              <svg style="width:16px;height:16px;color:var(--accent-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:12px">johnespinosa</div>
+              <div style="font-size:10px;color:var(--text-dim)">9 tool calls · service_centers (4x), fleet_query (3x) ...</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:10px;color:var(--text-dim)">5 min</div>
+            <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">Completed</span>
+          </div>
+        </div>
+        <!-- Session row 3 -->
+        <div style="padding:12px 18px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center">
+              <svg style="width:16px;height:16px;color:var(--accent-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:12px">johnespinosa</div>
+              <div style="font-size:10px;color:var(--text-dim)">3 tool calls · draft_recommendation (1x), fleet_query (2x)</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:10px;color:var(--text-dim)">3 min</div>
+            <span class="tag" style="font-size:9px;padding:3px 8px;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tool Call Timeline -->
+    <div class="reveal">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
+          <div style="font-weight:700;font-size:14px">Tool Call Timeline</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Session detail — 15 tool calls · 8 min</div>
+        </div>
+        <div style="padding:16px 18px">
+          <div style="display:flex;flex-direction:column;gap:0">
+            <!-- Timeline entries -->
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px"></div>
+                <div style="width:1.5px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              </div>
+              <div style="padding-bottom:12px">
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Fleet Query</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);background:var(--accent-dim);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">query=all_vehicles</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:43:52 AM</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px"></div>
+                <div style="width:1.5px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              </div>
+              <div style="padding-bottom:12px">
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Vehicles Due For Maintenance</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);background:var(--accent-dim);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">within_days=30</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:44:27 AM</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px"></div>
+                <div style="width:1.5px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              </div>
+              <div style="padding-bottom:12px">
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Upcoming Trips For Vehicle</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);background:var(--accent-dim);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">vehicle_id=7a3b..., days_ahead=7</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:45:45 AM</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px"></div>
+                <div style="width:1.5px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              </div>
+              <div style="padding-bottom:12px">
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Service Centers Near Route</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-light);background:var(--accent-dim);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">trip_id=TRP-0482, leg=return</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:45:50 AM</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--warning);flex-shrink:0;margin-top:3px"></div>
+                <div style="width:1.5px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              </div>
+              <div style="padding-bottom:12px">
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Draft Maintenance Recommendation</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:rgba(245,158,11,0.8);background:rgba(245,158,11,0.08);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">vehicle=EV-2501, center=Bay Area Fleet</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:46:11 AM</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;flex-shrink:0;margin-top:3px"></div>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Session End</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:#a78bfa;background:rgba(139,92,246,0.08);display:inline-block;padding:2px 6px;border-radius:4px;margin-top:3px">→ POST to production dashboard</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">05:51:39 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE: REPORTS — DAY ONE VALUE -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:2fr 3fr;gap:clamp(24px,4vw,50px);align-items:center;max-width:1100px">
+    <div>
+      <p class="slide__label reveal">Day One Value</p>
+      <h2 class="slide__heading reveal" style="margin-top:12px;font-size:clamp(22px,3.5vw,34px)">Reports from day one.<br>Ad-hoc answers in seconds.</h2>
+      <p class="slide__body reveal" style="margin-top:12px;font-size:clamp(12px,1.3vw,15px)">
+        No training on query syntax. No learning which tables to join. New team members generate professional reports and get answers to one-off questions immediately.
+      </p>
+      <!-- Ad-hoc query examples with responses -->
+      <div class="reveal" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <!-- Query 1 -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:clamp(12px,1.2vw,14px);color:var(--text)">
+            <span style="color:var(--accent-light)">❯</span> "Which charging session for EV-2501 last month was the most expensive?"
+          </div>
+          <div style="padding:10px 14px;font-size:clamp(11px,1.1vw,13px);color:var(--text-dim);line-height:1.6">
+            <strong style="color:var(--text)">$95.14</strong> — EA Station Modesto (en-route) on March 18. 177 kWh at 552 kW over 45 minutes. That's ~$0.54/kWh — roughly double depot rates, which is expected for DC fast charging ($0.45–$0.65/kWh vs $0.12–$0.18/kWh overnight).
+          </div>
+        </div>
+        <!-- Query 2 -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:clamp(12px,1.2vw,14px);color:var(--text)">
+            <span style="color:var(--warning)">❯</span> "What's the average charging cost for the eCascadia fleet in the last two weeks?"
+          </div>
+          <div style="padding:10px 14px;font-size:clamp(11px,1.1vw,13px);color:var(--text-dim);line-height:1.6">
+            Across 4 eCascadias (EV-2401, 2402, 2403, 2602): <strong style="color:var(--text)">37 sessions, $2,149 total, $58.08 avg/session</strong>. Depot charging at ~$0.14/kWh, en-route at ~$0.53/kWh. EV-2602 stands out with 5 en-route sessions — may need route optimization to reduce fast charging dependency.
+          </div>
+        </div>
+      </div>
+      <p class="reveal" style="margin-top:10px;font-size:11px;color:var(--text-dim);font-style:italic">Queries that would take 15 minutes of SQL — answered in a conversation.</p>
+      <div class="reveal" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag" style="font-size:9px;padding:4px 8px">Investigation Report</span>
+        <span class="tag" style="font-size:9px;padding:4px 8px">Health Report</span>
+        <span class="tag" style="font-size:9px;padding:4px 8px">Recommendation Doc</span>
+        <span class="tag" style="font-size:9px;padding:4px 8px">Mechanic Brief</span>
+      </div>
+    </div>
+    <!-- Mini report recreation -->
+    <div class="reveal">
+      <div style="background:#f7fafc;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.06);transform:perspective(1000px) rotateY(-1deg)">
+        <!-- Report header -->
+        <div style="background:#1a365d;color:white;padding:14px 20px">
+          <div style="font-weight:700;font-size:14px">Maintenance Investigation Report</div>
+          <div style="font-size:10px;opacity:0.7;margin-top:4px;display:flex;gap:16px">
+            <span>Investigation Report</span><span>Mar 19, 2026</span><span>FleetOps Copilot</span>
+          </div>
+        </div>
+        <!-- Report body -->
+        <div style="padding:14px 20px;color:#2d3748">
+          <!-- Metrics -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+            <div style="background:#edf2f7;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:800;color:#1a365d">11</div>
+              <div style="font-size:9px;color:#718096;text-transform:uppercase">Vehicles Scanned</div>
+            </div>
+            <div style="background:#edf2f7;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:800;color:#c05621">3</div>
+              <div style="font-size:9px;color:#718096;text-transform:uppercase">Flagged</div>
+            </div>
+            <div style="background:#edf2f7;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:800;color:#1a365d">14</div>
+              <div style="font-size:9px;color:#718096;text-transform:uppercase">Day Window</div>
+            </div>
+          </div>
+          <!-- Vehicle card -->
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-weight:700;font-size:13px">EV-2501 — 2025 Volvo VNR Electric</span>
+              <span style="background:#feebc8;color:#c05621;font-size:9px;font-weight:700;padding:3px 8px;border-radius:999px;text-transform:uppercase">High</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+              <div style="background:#edf2f7;border-radius:6px;padding:6px;text-align:center">
+                <div style="font-size:14px;font-weight:800;color:#1a365d">1,000</div>
+                <div style="font-size:8px;color:#718096">Miles to Threshold</div>
+              </div>
+              <div style="background:#edf2f7;border-radius:6px;padding:6px;text-align:center">
+                <div style="font-size:14px;font-weight:800;color:#1a365d">Safety Check</div>
+                <div style="font-size:8px;color:#718096">Service Type</div>
+              </div>
+              <div style="background:#edf2f7;border-radius:6px;padding:6px;text-align:center">
+                <div style="font-size:14px;font-weight:800;color:#1a365d">~7 days</div>
+                <div style="font-size:8px;color:#718096">Projected</div>
+              </div>
+            </div>
+            <!-- Progress bar -->
+            <div style="background:#edf2f7;border-radius:4px;height:6px;overflow:hidden">
+              <div style="background:#e53e3e;height:100%;width:97%;border-radius:4px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#a0aec0;margin-top:3px">
+              <span>34,000 mi</span><span>35,000 mi</span>
+            </div>
+            <!-- Recommendation -->
+            <div style="background:#ebf8ff;border-left:3px solid #2b6cb0;padding:8px 10px;border-radius:0 6px 6px 0;margin-top:8px;font-size:10px;color:#2a4365;line-height:1.5">
+              <strong>Recommendation:</strong> Schedule safety check at Fresno Fleet Maintenance (1.9 mi off return route) during tomorrow's Fresno trip.
+            </div>
+          </div>
+          <!-- Footer -->
+          <div style="text-align:center;font-size:8px;color:#a0aec0;padding-top:6px;border-top:1px solid #e2e8f0">
+            Generated by FleetOps Copilot — Mar 19, 2026
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE: LIVE DEMO -->
+<!-- ============================================================ -->
+<section class="slide slide--divider" style="text-align:center;align-items:center">
+  <span class="slide__number" style="opacity:0.03">▶</span>
+  <div>
+    <p class="slide__label reveal">Live Demo</p>
+    <h2 class="slide__display reveal" style="font-size:clamp(36px,7vw,80px);margin-top:12px">Let's see it work</h2>
+    <div class="reveal" style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div class="tag" style="font-size:13px;padding:8px 16px">Dashboard → fleet data</div>
+      <div class="tag" style="font-size:13px;padding:8px 16px">Copilot → maintenance scan</div>
+      <div class="tag" style="font-size:13px;padding:8px 16px">HTML reports</div>
+      <div class="tag" style="font-size:13px;padding:8px 16px">PR for approval</div>
+      <div class="tag" style="font-size:13px;padding:8px 16px">Session audit trail</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: WHAT'S NEXT -->
+<!-- ============================================================ -->
+<section class="slide" style="justify-content:center">
+  <p class="slide__label reveal">What's Next</p>
+  <h2 class="slide__heading reveal" style="margin-top:12px;margin-bottom:8px;text-align:center">Endless possibilities <span style="font-weight:400;font-size:clamp(16px,2.5vw,24px);color:var(--text-dim)">— the platform is built to grow</span></h2>
+  <p class="slide__body reveal" style="max-width:700px;margin:0 auto 24px;text-align:center;font-size:clamp(13px,1.4vw,16px)">
+    Every new tool, skill, or integration is additive. The copilot's capabilities expand without rebuilding the core.
+  </p>
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1000px">
+    <!-- Access Control -->
+    <div class="card" style="border-left:3px solid var(--danger)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:var(--danger)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">Access Control</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        SSH key authentication so only authorized users can start a copilot session. Each login is tied to a named identity in the audit trail.
+      </div>
+    </div>
+    <!-- Role-Based Permissions -->
+    <div class="card" style="border-left:3px solid #8b5cf6">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:#a78bfa" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">Role-Based Tools</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        Dispatchers see trip and vehicle tools. Fleet managers get recommendation and approval tools. Mechanics only see their service briefs. Different roles, different capabilities.
+      </div>
+    </div>
+    <!-- Slack Integration -->
+    <div class="card" style="border-left:3px solid var(--warning)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:var(--warning)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">Slack Notifications</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        "Send this maintenance report to the #fleet-ops channel." A new MCP tool that posts investigation results and recommendations directly to Slack.
+      </div>
+    </div>
+    <!-- Email Service Centers -->
+    <div class="card" style="border-left:3px solid var(--accent-light)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:var(--accent-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">Email Service Centers</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        "Email Bay Area Fleet Services — we're scheduling EV-2501 for a safety check next Thursday. Do you have availability?" Turn mock emails into real ones.
+      </div>
+    </div>
+    <!-- Expanded Tools -->
+    <div class="card" style="border-left:3px solid #22c55e">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:#22c55e" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">New Data Sources</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        Driver assignments, charger network availability, weather-adjusted routing, parts inventory. Each one is a new MCP tool — the copilot discovers it automatically.
+      </div>
+    </div>
+    <!-- Custom Skills -->
+    <div class="card" style="border-left:3px solid var(--text-dim)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <svg style="width:18px;height:18px;color:var(--text-dim)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        <div class="card__title" style="margin:0;font-size:14px">Custom Skills</div>
+      </div>
+      <div class="card__body" style="font-size:12px">
+        Compliance reporting, cost analysis workflows, battery degradation investigations — any repeatable investigation becomes a skill with a SKILL.md and templates.
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Navigation Chrome -->
+<div class="deck-progress" style="width:0%"></div>
+<nav class="deck-dots"></nav>
+<div class="deck-counter">1 / 13</div>
+<div class="deck-hints">↓ scroll or arrow keys</div>
+
+<script>
+function autoFit() {
+  document.querySelectorAll('.mermaid svg').forEach(function(svg) {
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.maxWidth = '100%';
+    svg.style.height = 'auto';
+  });
+}
+
+function SlideEngine() {
+  var self = this;
+  this.slides = Array.from(document.querySelectorAll('.slide'));
+  this.total = this.slides.length;
+  this.current = 0;
+  this.progress = document.querySelector('.deck-progress');
+  this.counter = document.querySelector('.deck-counter');
+  this.hints = document.querySelector('.deck-hints');
+  this.dots = [];
+
+  var dotsNav = document.querySelector('.deck-dots');
+  this.slides.forEach(function(_, i) {
+    var dot = document.createElement('button');
+    dot.className = 'deck-dot';
+    dot.addEventListener('click', function() {
+      self.slides[i].scrollIntoView({ behavior: 'smooth' });
+    });
+    dotsNav.appendChild(dot);
+    self.dots.push(dot);
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        self.current = self.slides.indexOf(entry.target);
+        self.updateChrome();
+        self.fadeHints();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  this.slides.forEach(function(s) { observer.observe(s); });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      if (self.current < self.total - 1) self.slides[self.current + 1].scrollIntoView({ behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (self.current > 0) self.slides[self.current - 1].scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  this.hintTimer = setTimeout(function() { self.fadeHints(); }, 4000);
+  this.updateChrome();
+}
+
+SlideEngine.prototype.updateChrome = function() {
+  var pct = ((this.current + 1) / this.total) * 100;
+  this.progress.style.width = pct + '%';
+  this.counter.textContent = (this.current + 1) + ' / ' + this.total;
+  var self = this;
+  this.dots.forEach(function(d, i) { d.classList.toggle('active', i === self.current); });
+};
+
+SlideEngine.prototype.fadeHints = function() {
+  clearTimeout(this.hintTimer);
+  this.hints.classList.add('faded');
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  autoFit();
+  new SlideEngine();
+});
+</script>
+</body>
+</html>
