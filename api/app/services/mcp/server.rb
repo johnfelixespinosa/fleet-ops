@@ -9,7 +9,8 @@ module Mcp
       Tools::UpcomingTripsForVehicle,
       Tools::ServiceCentersNearRoute,
       Tools::VehicleHealthSummary,
-      Tools::DraftMaintenanceRecommendation
+      Tools::DraftMaintenanceRecommendation,
+      Tools::FleetQuery
     ].freeze
 
     def run

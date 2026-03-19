@@ -66,6 +66,25 @@ You have 5 MCP tools that query the fleet operations database. All access is **r
 - **Parameters:** `vehicle_id`, `service_center_id`, `trip_id` (all required)
 - **Returns:** Structured recommendation suitable for an HTML report and a GitHub PR
 
+### 6. fleet_query
+- **Use when:** Any question the other 5 tools can't answer — looking up a vehicle by unit number, finding trips for a specific truck, listing service centers, checking dates, counting records, or any ad-hoc data lookup
+- **This is your general-purpose data tool.** Use it first when the user asks about a specific vehicle, trip, or service center.
+- **Parameters:** `query` (required) — a query string in the format `query_type:parameter`
+- **Available queries:**
+  - `all_vehicles` — list all vehicles with status, mileage, battery health
+  - `vehicle_by_unit:EV-2601` — full details for a specific vehicle (includes UUID)
+  - `trips_for_unit:EV-2601` — all trips for a vehicle (up to 20)
+  - `next_trip_for_unit:EV-2601` — next scheduled trip only
+  - `vehicle_count` — total, active, and in-shop counts
+  - `all_service_centers` — list all service centers with capabilities
+  - `service_center_by_city:Gilroy` — find centers in a city
+  - `ev_certified_centers` — only EV-certified centers
+  - `partner_centers` — only partner centers
+  - `trips_on_date:2026-03-20` — all trips on a specific date
+  - `search_trips:Fresno` — search trips by origin/destination
+  - `maintenance_history:EV-2501` — last 10 maintenance records for a vehicle
+  - `charging_history:EV-2501` — last 10 charging events for a vehicle
+
 ---
 
 ## Your Skills
