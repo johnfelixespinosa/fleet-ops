@@ -73,8 +73,13 @@
               <p class="text-sm font-bold text-slate-900">
                 <%= (call["tool"] || "unknown").gsub("mcp__fleetops__", "").titleize %>
               </p>
+              <% if call["query"].present? %>
+                <p class="text-xs text-slate-600 mt-0.5 font-mono bg-slate-50 px-2 py-1 rounded border border-slate-100 inline-block">
+                  <%= call["query"] %>
+                </p>
+              <% end %>
               <% if call["ts"] %>
-                <p class="text-xs text-slate-400 mt-0.5">
+                <p class="text-xs text-slate-400 mt-1">
                   <%= Time.parse(call["ts"]).strftime("%I:%M:%S %p") rescue call["ts"] %>
                 </p>
               <% end %>

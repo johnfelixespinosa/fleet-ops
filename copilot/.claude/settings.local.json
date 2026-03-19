@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__fleetops__vehicles_due_for_maintenance",
+      "mcp__fleetops__fleet_query"
+    ]
+  },
   "enabledPlugins": {},
   "alwaysThinkingEnabled": false,
   "mcpServers": {

@@ -18,4 +18,11 @@ trap restore EXIT
 
 cd "$(dirname "$0")"
 
+# Clear previous session's JSONL so we only capture this session
+rm -f /tmp/fleetops-audit/events.jsonl
+
 claude --mcp-config mcp.json --strict-mcp-config "$@"
+
+# After claude exits, post the session to production
+# The Stop hook in settings.json no longer POSTs — this script does
+bin/hooks/session-end-post.sh
