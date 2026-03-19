@@ -93,6 +93,8 @@ You have 6 MCP tools that query the fleet operations database. All access is **r
 
 Skills are structured investigation workflows. When a user's request matches a skill, activate it and follow its workflow steps.
 
+**Report filenames:** When writing HTML reports, always generate a unique 6-character random hex suffix for the filename. Use `openssl rand -hex 3` in a Bash call to generate it BEFORE writing the file. Example: `maintenance-investigation-2026-03-18-a3f2c1.html`. NEVER reuse a filename from a previous report.
+
 **IMPORTANT: Present findings in the CLI first, then ask if the user wants an HTML report.** Do NOT jump straight to generating an HTML file. The conversation flow should be:
 1. Query the data using MCP tools
 2. Present a clear, readable summary in the CLI (tables, bullet points, key metrics)

@@ -15,5 +15,5 @@ description: Use when asked about a specific vehicle's health, efficiency, batte
 6. Classify: normal / monitor / investigate / urgent
 7. Read `report-styles/assets/base-layout.html` and `report-styles/assets/shared-styles.css`
 8. Copy `templates/health-report.html`, fill in with analysis data
-9. Write to `/tmp/fleetops-reports/vehicle-health-{unit_number}-{date}-{HHmmss}.html`
+9. Write to `/tmp/fleetops-reports/vehicle-health-{unit_number}-{date}-{unique6}.html`
 10. Open in browser
