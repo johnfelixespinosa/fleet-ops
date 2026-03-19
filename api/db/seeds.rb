@@ -506,6 +506,17 @@ if Trip.count == 0
 end
 
 # ---------------------------------------------------------------------------
+# Sync last_maintenance_date from actual maintenance records
+# ---------------------------------------------------------------------------
+Vehicle.find_each do |v|
+  last_record = v.maintenance_records.order(completed_at: :desc).first
+  if last_record
+    v.update_column(:last_maintenance_date, last_record.completed_at.to_date)
+  end
+end
+puts "  Synced last_maintenance_date from maintenance records"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 puts ""

@@ -37,8 +37,9 @@
   <% if vehicle.annual_inspection_due.present? %>
     <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-6 text-sm text-slate-500">
       <span>Annual Inspection Due: <strong class="<%= vehicle.annual_inspection_due < 14.days.from_now ? 'text-red-600' : 'text-slate-900' %>"><%= vehicle.annual_inspection_due.strftime("%b %-d, %Y") %></strong></span>
-      <% if vehicle.last_maintenance_date %>
-        <span>Last Service: <strong class="text-slate-900"><%= vehicle.last_maintenance_date.strftime("%b %-d, %Y") %></strong></span>
+      <% last_record = vehicle.maintenance_records.recent.first %>
+      <% if last_record %>
+        <span>Last Service: <strong class="text-slate-900"><%= last_record.completed_at.strftime("%b %-d, %Y") %></strong> at <%= last_record.service_center.name %></span>
       <% end %>
     </div>
   <% end %>
