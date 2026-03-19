@@ -1,5 +1,5 @@
 #!/bin/bash
-export DATABASE_URL="postgresql://postgres:DGSVFUxgeXxjOGWLaOKDMAotScthKfzg@tramway.proxy.rlwy.net:24652/railway"
+export DATABASE_URL="postgresql://postgres:KZgFCeGbzVLsPkGiykbCqTtYfttjVZFY@maglev.proxy.rlwy.net:31002/railway"
 export RAILS_ENV="production"
 source "$HOME/.rvm/scripts/rvm"
 rvm use 3.4.2 > /dev/null 2>&1
