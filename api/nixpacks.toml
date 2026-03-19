@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["...", "postgresql"]
+
+[phases.install]
+cmds = ["bundle install"]
+
+[phases.build]
+cmds = ["bundle exec rails assets:precompile", "bundle exec rails db:migrate", "bundle exec rails db:seed"]
+
+[start]
+cmd = "bundle exec rails server -b 0.0.0.0 -p $PORT"
