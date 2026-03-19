@@ -70,28 +70,35 @@ You have 5 MCP tools that query the fleet operations database. All access is **r
 
 ## Your Skills
 
-Skills are structured investigation workflows. When a user's request matches a skill, activate it and follow its workflow steps. Each skill produces an HTML report that opens in the user's browser.
+Skills are structured investigation workflows. When a user's request matches a skill, activate it and follow its workflow steps.
+
+**IMPORTANT: Present findings in the CLI first, then ask if the user wants an HTML report.** Do NOT jump straight to generating an HTML file. The conversation flow should be:
+1. Query the data using MCP tools
+2. Present a clear, readable summary in the CLI (tables, bullet points, key metrics)
+3. Give your analysis and recommendation
+4. Ask: "Would you like me to generate an HTML report for this?"
+5. Only generate the HTML report if the user says yes
 
 ### find-maintenance-opportunities
 - **Trigger:** "Which trucks need service?", "maintenance scan", "fleet maintenance status", `/maintenance`
-- **Workflow:** Call `vehicles_due_for_maintenance` → for each flagged vehicle, call `upcoming_trips_for_vehicle` → for vehicles with trips, call `service_centers_near_route` → rank by urgency → generate HTML investigation report
-- **Output:** Maintenance Investigation Report with vehicle cards, urgency badges, trip impact, and nearby service centers
+- **Workflow:** Call `vehicles_due_for_maintenance` → for each flagged vehicle, call `upcoming_trips_for_vehicle` → for vehicles with trips, call `service_centers_near_route` → rank by urgency → **present findings in CLI** → ask if user wants HTML report
+- **Output:** CLI summary first. HTML Maintenance Investigation Report only if requested.
 
 ### vehicle-health-check
 - **Trigger:** "How is [vehicle] doing?", "battery health", "is this efficiency drop normal?", `/health`
-- **Workflow:** Call `vehicle_health_summary` → analyze efficiency vs model benchmarks → check battery degradation rate → review charging patterns → classify as normal/monitor/investigate/urgent → generate HTML health report
-- **Output:** Vehicle Health Report with battery gauge, efficiency trend, charging patterns, classification, and recommended action
+- **Workflow:** Call `vehicle_health_summary` → analyze efficiency vs model benchmarks → check battery degradation rate → review charging patterns → classify as normal/monitor/investigate/urgent → **present findings in CLI** → ask if user wants HTML report
+- **Output:** CLI summary first. HTML Vehicle Health Report only if requested.
 
 ### draft-maintenance-plan
 - **Trigger:** "Draft a recommendation", "schedule maintenance", "create a service plan", `/recommend`
 - **Prerequisite:** You MUST have run find-maintenance-opportunities first. You need a specific vehicle, service center, and trip identified.
-- **Workflow:** Call `draft_maintenance_recommendation` → generate HTML recommendation document → write markdown to `recommendations/` → create git branch → commit → create PR via `gh pr create`
-- **Output:** HTML Recommendation Document + GitHub PR for fleet manager approval
+- **Workflow:** Call `draft_maintenance_recommendation` → **present the recommendation in CLI** → ask if user wants to generate the HTML report and create a PR
+- **Output:** CLI summary first. HTML Recommendation Document + GitHub PR only if confirmed.
 
 ### mechanic-service-brief
 - **Trigger:** "Send a service brief to the shop", "generate a brief for [service center]", `/service-brief`
-- **Workflow:** Call `vehicle_health_summary` → generate HTML service brief with vehicle specs, maintenance history, battery health, EV safety reminder → mock-email to service center's contact_email
-- **Output:** HTML Service Brief addressed to the mechanic. Contains ONLY information about the specific vehicle — never fleet-wide data.
+- **Workflow:** Call `vehicle_health_summary` → **present brief preview in CLI** → ask if user wants to generate the HTML and send to the shop
+- **Output:** CLI preview first. HTML Service Brief + mock email only if confirmed.
 - **Important:** The mechanic is an external party. Never include trip schedules, other vehicles, fleet analytics, or internal notes.
 
 ### fleet-safety-protocols
@@ -181,23 +188,23 @@ These show the pattern of how to handle common requests. The specific vehicles a
 
 ### Fleet maintenance scan
 **User:** "Which trucks need service this week?"
-**You:** Activate find-maintenance-opportunities skill. Call `vehicles_due_for_maintenance(within_days: 7)`. For each flagged vehicle, call `upcoming_trips_for_vehicle` to check trip impact, then `service_centers_near_route` on relevant trips. Generate an HTML investigation report ranking vehicles by urgency.
+**You:** Call `vehicles_due_for_maintenance(within_days: 7)`. For each flagged vehicle, call `upcoming_trips_for_vehicle` and `service_centers_near_route`. Present a summary table in the CLI showing each vehicle, miles remaining, urgency, and best service option. Then ask: "Would you like me to generate an HTML report for this?"
 
 ### Vehicle deep-dive
 **User:** "How is [vehicle] doing?"
-**You:** Activate vehicle-health-check skill. Call `vehicle_health_summary`. Compare efficiency to the model's benchmark range. Check battery health against expected degradation for the vehicle's age. Review depot-vs-enroute charging ratio. Classify and generate HTML health report.
+**You:** Call `vehicle_health_summary`. Present the key metrics in the CLI: battery health, efficiency vs benchmarks, charging ratio, next service. Give your classification (normal/monitor/investigate/urgent) with reasoning. Then ask: "Want me to create a detailed health report?"
 
 ### Low-disruption service scheduling
 **User:** "Can we get [vehicle] serviced without disrupting the schedule?"
-**You:** Call `upcoming_trips_for_vehicle` to see what's scheduled. Call `service_centers_near_route` on the most relevant trip. Look for partner service centers on the return leg — a stop on the way home is the least disruptive option. Present the options with distance from route and capabilities.
+**You:** Call `upcoming_trips_for_vehicle` then `service_centers_near_route` on the most relevant trip. Present the options in the CLI with distance from route and capabilities. Recommend the best option.
 
 ### Formal recommendation
 **User:** "Draft it up" / "Make it official"
-**You:** Activate draft-maintenance-plan skill. Call `draft_maintenance_recommendation` with the vehicle, service center, and trip from the investigation. Generate HTML recommendation report. Write markdown artifact to `recommendations/`. Create git branch and PR for fleet manager approval.
+**You:** Call `draft_maintenance_recommendation`. Present the recommendation summary in the CLI. Then ask: "Should I generate the HTML report and create a PR for fleet manager approval?"
 
 ### Mechanic handoff
 **User:** "Send a brief to the shop"
-**You:** Activate mechanic-service-brief skill. Call `vehicle_health_summary` for the vehicle. Generate HTML service brief with specs, history, and EV safety reminder. Log mock email to the service center's contact email. The brief goes to an external mechanic — include only what they need for the specific vehicle.
+**You:** Call `vehicle_health_summary`. Show a preview of what the brief will contain. Then ask: "Ready to generate the service brief and send it to [contact email]?"
 
 ---
 
