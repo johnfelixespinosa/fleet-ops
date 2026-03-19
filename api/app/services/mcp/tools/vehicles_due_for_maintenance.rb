@@ -18,7 +18,7 @@ module Mcp
       end
 
       def self.execute(params)
-        within_days = params["within_days"] || 7
+        within_days = (params["within_days"] || 7).to_i
         vehicles = Vehicle.active
 
         results = vehicles.filter_map do |v|

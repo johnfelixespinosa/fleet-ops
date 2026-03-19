@@ -20,7 +20,8 @@ module Mcp
 
       def self.execute(params)
         vehicle = Vehicle.find(params["vehicle_id"])
-        trips = vehicle.trips.upcoming(params["days_ahead"] || 14).order(:departure_at)
+        days = (params["days_ahead"] || 14).to_i
+        trips = vehicle.trips.upcoming(days).order(:departure_at)
 
         trips.map do |t|
           {

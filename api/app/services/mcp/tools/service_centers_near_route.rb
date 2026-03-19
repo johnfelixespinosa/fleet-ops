@@ -21,8 +21,9 @@ module Mcp
       end
 
       def self.execute(params)
-        trip = Trip.find(params["trip_id"])
-        radius = params["radius_miles"] || 25
+        trip_id = params["trip_id"]
+        trip = Trip.find_by(trip_number: trip_id) || Trip.find(trip_id)
+        radius = (params["radius_miles"] || 25).to_i
         leg = params["leg"] || "return"
         waypoints = trip.route_waypoints || []
 

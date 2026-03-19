@@ -108,7 +108,7 @@ module Mcp
         "trips_on_date" => ->(param) {
           date = Date.parse(param)
           Trip.where(departure_at: date.beginning_of_day..date.end_of_day).order(:departure_at).map { |t|
-            { trip_number: t.trip_number, vehicle: t.vehicle.unit_number,
+            { trip_id: t.id, trip_number: t.trip_number, vehicle: t.vehicle.unit_number,
               origin: t.origin, destination: t.destination,
               distance_miles: t.distance_miles, status: t.status,
               departure_at: t.departure_at.iso8601 }
@@ -117,7 +117,7 @@ module Mcp
         "search_trips" => ->(param) {
           Trip.where("origin ILIKE ? OR destination ILIKE ?", "%#{param}%", "%#{param}%")
               .order(:departure_at).limit(20).map { |t|
-            { trip_number: t.trip_number, vehicle: t.vehicle.unit_number,
+            { trip_id: t.id, trip_number: t.trip_number, vehicle: t.vehicle.unit_number,
               origin: t.origin, destination: t.destination,
               distance_miles: t.distance_miles, status: t.status,
               departure_at: t.departure_at.iso8601 }
