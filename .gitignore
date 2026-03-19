@@ -19,12 +19,6 @@ api/app/assets/builds/*
 !api/app/assets/builds/.keep
 api/node_modules/
 
-# Desktop app (CLUI CC)
-desktop/node_modules/
-desktop/dist/
-desktop/release/
-desktop/out/
-
 # Copilot audit
 /tmp/fleetops-audit/
 
