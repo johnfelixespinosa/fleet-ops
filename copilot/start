@@ -1,0 +1,20 @@
+#!/bin/bash
+# Launch FleetOps Copilot with isolated skills (hides global ~/.claude/skills)
+GLOBAL_SKILLS="$HOME/.claude/skills"
+GLOBAL_PLUGINS="$HOME/.claude/plugins"
+HIDDEN_SKILLS="$HOME/.claude/_skills_hidden"
+HIDDEN_PLUGINS="$HOME/.claude/_plugins_hidden"
+
+# Hide global skills/plugins
+[ -d "$GLOBAL_SKILLS" ] && mv "$GLOBAL_SKILLS" "$HIDDEN_SKILLS"
+[ -d "$GLOBAL_PLUGINS" ] && mv "$GLOBAL_PLUGINS" "$HIDDEN_PLUGINS"
+
+# Restore on exit (even if claude crashes)
+restore() {
+  [ -d "$HIDDEN_SKILLS" ] && mv "$HIDDEN_SKILLS" "$GLOBAL_SKILLS"
+  [ -d "$HIDDEN_PLUGINS" ] && mv "$HIDDEN_PLUGINS" "$GLOBAL_PLUGINS"
+}
+trap restore EXIT
+
+cd "$(dirname "$0")"
+claude "$@"

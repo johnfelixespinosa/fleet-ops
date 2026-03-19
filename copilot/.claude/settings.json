@@ -1,11 +1,7 @@
 {
   "mcpServers": {
     "fleetops": {
-      "command": "/Users/johnespinosa/Desktop/Projects/fleet-ops/api/bin/mcp_server_wrapper",
-      "env": {
-        "DATABASE_URL": "postgresql://postgres:DGSVFUxgeXxjOGWLaOKDMAotScthKfzg@tramway.proxy.rlwy.net:24652/railway",
-        "RAILS_ENV": "production"
-      }
+      "command": "/Users/johnespinosa/Desktop/Projects/fleet-ops/api/bin/mcp_server_wrapper"
     }
   },
   "hooks": {
