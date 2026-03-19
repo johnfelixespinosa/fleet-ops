@@ -18,7 +18,7 @@ When a truck goes to the shop, the coordinator generates a service brief — a s
 2. Read `gotchas.md`
 3. Read `report-styles/assets/base-layout.html` and `report-styles/assets/shared-styles.css`
 4. Copy `templates/service-brief.html`, fill in with vehicle data
-5. Write to `/tmp/fleetops-reports/service-brief-{unit_number}-{date}.html`
+5. Write to `/tmp/fleetops-reports/service-brief-{unit_number}-{date}-{HHmmss}.html`
 6. Open in browser
 7. Mock-email: log to console AND to `/tmp/fleetops-audit/events.jsonl`:
 ```bash

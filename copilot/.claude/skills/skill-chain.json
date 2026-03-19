@@ -7,7 +7,7 @@
           "skill": "find-maintenance-opportunities",
           "produces": {
             "flagged_vehicles": "array of { vehicle_id, unit_number, urgency, trip_id, service_center_id }",
-            "investigation_report": "/tmp/fleetops-reports/maintenance-investigation-{date}.html"
+            "investigation_report": "/tmp/fleetops-reports/maintenance-investigation-{date}-{HHmmss}.html"
           }
         },
         {
@@ -16,14 +16,14 @@
           "requires": ["flagged_vehicles.vehicle_id"],
           "produces": {
             "health_classification": "normal | monitor | investigate | urgent",
-            "health_report": "/tmp/fleetops-reports/vehicle-health-{unit_number}-{date}.html"
+            "health_report": "/tmp/fleetops-reports/vehicle-health-{unit_number}-{date}-{HHmmss}.html"
           }
         },
         {
           "skill": "draft-maintenance-plan",
           "requires": ["flagged_vehicles.vehicle_id", "flagged_vehicles.trip_id", "flagged_vehicles.service_center_id"],
           "produces": {
-            "recommendation_report": "/tmp/fleetops-reports/recommendation-{unit_number}-{date}.html",
+            "recommendation_report": "/tmp/fleetops-reports/recommendation-{unit_number}-{date}-{HHmmss}.html",
             "recommendation_artifact": "recommendations/{unit_number}-{date}-{type}.md",
             "pr_url": "string"
           }
@@ -32,7 +32,7 @@
           "skill": "mechanic-service-brief",
           "requires": ["flagged_vehicles.vehicle_id", "flagged_vehicles.service_center_id"],
           "produces": {
-            "service_brief": "/tmp/fleetops-reports/service-brief-{unit_number}-{date}.html",
+            "service_brief": "/tmp/fleetops-reports/service-brief-{unit_number}-{date}-{HHmmss}.html",
             "email_log": "/tmp/fleetops-audit/events.jsonl"
           }
         }

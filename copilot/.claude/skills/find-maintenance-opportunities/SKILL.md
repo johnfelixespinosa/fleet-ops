@@ -14,5 +14,5 @@ description: Use when asked about vehicles due for maintenance, upcoming service
 5. Read `gotchas.md` before generating output
 6. Read `report-styles/assets/base-layout.html` and `report-styles/assets/shared-styles.css`
 7. Copy `templates/investigation-report.html`, fill in with investigation data
-8. Write to `/tmp/fleetops-reports/maintenance-investigation-{date}.html`
-9. Open in browser: `open /tmp/fleetops-reports/maintenance-investigation-{date}.html`
+8. Write to `/tmp/fleetops-reports/maintenance-investigation-{date}-{HHmmss}.html`
+9. Open in browser: `open /tmp/fleetops-reports/maintenance-investigation-{date}-{HHmmss}.html`

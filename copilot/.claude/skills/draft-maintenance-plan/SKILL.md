@@ -14,7 +14,7 @@ description: Use after investigating maintenance opportunities, when ready to ge
 1. Call `draft_maintenance_recommendation` with the vehicle, service center, and trip
 2. Read `report-styles/assets/base-layout.html` and `report-styles/assets/shared-styles.css`
 3. Copy `templates/recommendation-report.html`, fill in with recommendation data
-4. Write HTML to `/tmp/fleetops-reports/recommendation-{unit_number}-{date}.html`
+4. Write HTML to `/tmp/fleetops-reports/recommendation-{unit_number}-{date}-{HHmmss}.html`
 5. Open in browser
 6. Copy `templates/recommendation.md`, fill in with the same data
 7. Write markdown to `recommendations/{unit_number}-{date}-{maintenance_type}.md`
