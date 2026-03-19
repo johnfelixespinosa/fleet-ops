@@ -3,7 +3,8 @@
 
 # Rails (api/)
 api/.bundle
-api/.env*
+api/.env
+api/.env.local
 api/log/*
 !api/log/.keep
 api/tmp/*

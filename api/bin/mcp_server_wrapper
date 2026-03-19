@@ -1,7 +1,11 @@
 #!/bin/bash
-export DATABASE_URL="postgresql://postgres:KZgFCeGbzVLsPkGiykbCqTtYfttjVZFY@maglev.proxy.rlwy.net:31002/railway"
-export RAILS_ENV="production"
 source "$HOME/.rvm/scripts/rvm"
 rvm use 3.4.2 > /dev/null 2>&1
 cd "$(dirname "$0")/.."
+
+# Load environment from .env
+if [ -f .env ]; then
+  export $(grep -v '^#' .env | xargs)
+fi
+
 exec ruby bin/mcp_server
