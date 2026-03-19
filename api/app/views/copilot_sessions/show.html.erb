@@ -1,0 +1,91 @@
+<% content_for(:title) { "FleetOps — Session Detail" } %>
+<% content_for(:page_heading) { "Session Detail" } %>
+<% content_for(:page_subheading) { "#{@session.user_name} · #{@session.created_at.strftime("%b %-d, %Y at %I:%M %p")}" } %>
+
+<div class="mb-4">
+  <%= link_to copilot_sessions_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 transition-colors" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    All Sessions
+  <% end %>
+</div>
+
+<!-- Session Header -->
+<div class="glass-panel rounded-2xl shadow-sm p-6 mb-6">
+  <div class="flex items-start justify-between">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center">
+        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-900"><%= @session.user_name %></h2>
+        <p class="text-sm text-slate-500 mt-0.5"><%= @session.session_summary || "No summary" %></p>
+      </div>
+    </div>
+    <% badge_color = case @session.outcome
+      when "completed" then "bg-teal-50 text-teal-700 border-teal-100"
+      when "in_progress" then "bg-amber-50 text-amber-700 border-amber-100"
+      else "bg-slate-100 text-slate-600 border-slate-200"
+      end %>
+    <span class="px-3 py-1.5 rounded-lg text-xs font-bold border <%= badge_color %>">
+      <%= @session.outcome&.titleize || "Unknown" %>
+    </span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-6 mt-6 pt-4 border-t border-slate-100">
+    <div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Started</p>
+      <p class="text-sm text-slate-900 mt-1"><%= @session.created_at.strftime("%b %-d, %Y at %I:%M:%S %p") %></p>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Duration</p>
+      <p class="text-sm text-slate-900 mt-1"><%= @session.duration_display %></p>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tool Calls</p>
+      <p class="text-sm text-slate-900 mt-1"><%= @session.tool_count %></p>
+    </div>
+  </div>
+</div>
+
+<!-- Tool Call Timeline -->
+<% if @session.tool_invocations.present? && @session.tool_invocations.any? %>
+  <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100">
+      <h2 class="text-lg font-bold text-slate-900">Tool Call Timeline</h2>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <% @session.tool_invocations.each_with_index do |call, i| %>
+          <div class="flex gap-4">
+            <!-- Timeline dot + line -->
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full bg-teal-500 border-2 border-white shadow-sm flex-shrink-0 mt-1"></div>
+              <% unless i == @session.tool_invocations.size - 1 %>
+                <div class="w-px flex-1 bg-slate-200 mt-1"></div>
+              <% end %>
+            </div>
+            <!-- Content -->
+            <div class="pb-4 flex-1">
+              <p class="text-sm font-bold text-slate-900">
+                <%= (call["tool"] || "unknown").gsub("mcp__fleetops__", "").titleize %>
+              </p>
+              <% if call["ts"] %>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  <%= Time.parse(call["ts"]).strftime("%I:%M:%S %p") rescue call["ts"] %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="glass-panel rounded-2xl p-8 shadow-sm text-center">
+    <p class="text-slate-400 text-sm">No tool calls recorded for this session</p>
+  </div>
+<% end %>

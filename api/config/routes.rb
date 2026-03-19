@@ -4,4 +4,5 @@ Rails.application.routes.draw do
   root "dashboard#index"
   resources :vehicles, only: [:index, :show]
   resources :service_centers, only: [:index]
+  resources :copilot_sessions, only: [:index, :show, :create], path: "sessions"
 end

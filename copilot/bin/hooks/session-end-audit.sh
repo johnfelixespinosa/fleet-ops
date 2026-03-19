@@ -1,16 +1,33 @@
 #!/bin/bash
 AUDIT_DIR="/tmp/fleetops-audit"
-BUCKET="fleetops-copilot-audit"
+API_URL="https://fleetops-api-production.up.railway.app/sessions"
 SESSION_ID="${CLAUDE_SESSION_ID:-unknown}"
+USER_NAME="$(whoami)"
 
 mkdir -p "$AUDIT_DIR"
 
-# Write session end event to the unified stream
-echo "{\"type\":\"session_end\",\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"user\":\"$(whoami)\",\"sid\":\"$SESSION_ID\"}" >> "$AUDIT_DIR/events.jsonl"
+# Write session end event
+echo "{\"type\":\"session_end\",\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"user\":\"$USER_NAME\",\"sid\":\"$SESSION_ID\"}" >> "$AUDIT_DIR/events.jsonl"
 
-# Upload the single file (skip silently if no AWS CLI)
-if command -v aws &> /dev/null; then
-  aws s3 cp "$AUDIT_DIR/events.jsonl" "s3://${BUCKET}/sessions/${SESSION_ID}-events.jsonl" 2>/dev/null || true
+# Collect tool calls from this session
+TOOL_CALLS="[]"
+if [ -f "$AUDIT_DIR/events.jsonl" ]; then
+  TOOL_CALLS=$(grep "\"tool_call\"" "$AUDIT_DIR/events.jsonl" | grep "\"$SESSION_ID\"" | jq -s '.' 2>/dev/null || echo "[]")
 fi
+
+TOOL_COUNT=$(echo "$TOOL_CALLS" | jq 'length' 2>/dev/null || echo "0")
+SUMMARY="Session with $TOOL_COUNT tool call(s)"
+
+# POST session to production API
+curl -s -X POST "$API_URL" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n \
+    --arg user "$USER_NAME" \
+    --arg summary "$SUMMARY" \
+    --arg outcome "completed" \
+    --arg sid "$SESSION_ID" \
+    --argjson tools "$TOOL_CALLS" \
+    '{user_name: $user, session_summary: $summary, outcome: $outcome, session_id: $sid, tool_invocations: $tools}'
+  )" > /dev/null 2>&1 || true
 
 exit 0

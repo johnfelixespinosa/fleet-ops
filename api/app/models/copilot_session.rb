@@ -13,4 +13,17 @@
 #
 class CopilotSession < ApplicationRecord
   validates :user_name, presence: true
+
+  scope :recent, -> { order(created_at: :desc) }
+  scope :successful, -> { where(outcome: "successful_recommendation") }
+
+  def tool_count
+    tool_invocations&.size || 0
+  end
+
+  def duration_display
+    return "—" unless updated_at && created_at
+    mins = ((updated_at - created_at) / 60).round
+    mins < 1 ? "< 1 min" : "#{mins} min"
+  end
 end
