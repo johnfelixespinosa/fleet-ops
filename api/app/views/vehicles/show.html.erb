@@ -12,7 +12,7 @@
 </div>
 
 <%= render "vehicles/header", vehicle: @vehicle %>
-<%= render "trips/table", trips: @upcoming_trips, title: "Upcoming Trips" %>
-<%= render "trips/table", trips: @recent_trips, title: "Recent Completed Trips" %>
-<%= render "maintenance_records/table", records: @maintenance_history, title: "Maintenance History" %>
-<%= render "charging_events/table", events: @recent_charging, title: "Recent Charging" %>
+<%= render "trips/table", trips: @upcoming_trips, title: "Upcoming Trips", pagination: @upcoming_trips_pagination %>
+<%= render "trips/table", trips: @recent_trips, title: "Recent Completed Trips", pagination: @recent_trips_pagination %>
+<%= render "maintenance_records/table", records: @maintenance_history, title: "Maintenance History", pagination: @maintenance_pagination %>
+<%= render "charging_events/table", events: @recent_charging, title: "Recent Charging", pagination: @charging_pagination %>

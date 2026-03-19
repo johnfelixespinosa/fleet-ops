@@ -1,10 +1,12 @@
 class CopilotSessionsController < ApplicationController
+  include Paginatable
   skip_forgery_protection only: [:create]
 
   def index
-    @sessions = CopilotSession.recent
-    @total_count = @sessions.count
-    @total_tools = @sessions.sum(&:tool_count)
+    @sessions_pagination = paginate(CopilotSession.recent, per_page: 15)
+    @sessions = @sessions_pagination[:records]
+    @total_count = @sessions_pagination[:total]
+    @total_tools = CopilotSession.sum { |s| s.tool_count }
   end
 
   def show

@@ -33,5 +33,8 @@
       <% end %>
     </tbody>
   </table>
+  <% if defined?(pagination) && pagination %>
+    <%= render "shared/pagination", pagination: pagination %>
+  <% end %>
 </div>
 <% end %>

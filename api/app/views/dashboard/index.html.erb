@@ -209,7 +209,7 @@
           </svg>
           Upcoming Trips
         </h2>
-        <span class="text-xs text-slate-500">Next 7 days</span>
+        <span class="text-xs text-slate-500"><%= @upcoming_trips_total %> trips · Next 7 days</span>
       </div>
 
       <div class="overflow-x-auto rounded-xl border border-slate-100">
@@ -238,6 +238,8 @@
           </tbody>
         </table>
       </div>
+
+      <%= render "shared/pagination", pagination: @upcoming_trips_pagination %>
     </div>
   <% end %>
 </div>
